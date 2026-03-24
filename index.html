@@ -77,6 +77,25 @@
             border-radius: 2rem;
             overflow: hidden;
         }
+
+        .instruction-tap-area {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .instruction-tap-area:hover {
+            background: #f8fafc;
+            border-radius: 0.75rem;
+        }
+
+        /* Mobile specific font sizing for header to prevent wrapping */
+        @media (max-width: 480px) {
+            .header-text {
+                font-size: 10.5vw !important;
+            }
+            .header-logo {
+                height: 12vw !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -126,15 +145,15 @@
     <div id="main-app" class="min-h-screen flex flex-col">
         <nav class="bg-black text-white sticky top-0 z-50 border-b border-purple-900/30">
             <div class="max-w-7xl mx-auto px-6">
-                <div class="flex justify-between h-20 items-center">
+                <div class="flex justify-between h-16 items-center">
                     <div class="flex items-center gap-4 cursor-pointer" onclick="showSection('drills')">
-                        <span class="text-xs font-bold heading-font tracking-widest uppercase text-purple-400">Performance Hub</span>
+                        <img src="https://cmsv2-assets.apptegy.net/uploads/7672/logo/9154/bee_new.png" alt="Bees Logo" class="h-8 w-auto">
                     </div>
                     <div id="nav-auth-container" class="flex items-center gap-4">
                         <button onclick="refreshData()" class="text-white/40 hover:text-white transition p-2">
                             <i id="refresh-icon" class="fa-solid fa-arrows-rotate text-sm"></i>
                         </button>
-                        <button onclick="showAuth()" class="bg-purple-700 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 transition">
+                        <button onclick="showAuth()" class="bg-purple-700 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 transition">
                             Login
                         </button>
                     </div>
@@ -142,15 +161,15 @@
             </div>
         </nav>
 
-        <header class="bee-gradient text-white py-16 px-6 relative overflow-hidden">
+        <header class="bee-gradient text-white py-12 md:py-16 px-4 relative overflow-hidden">
             <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]"></div>
-            <div class="max-w-7xl mx-auto flex flex-col items-center justify-center relative z-10">
-                <div class="flex items-center gap-4 md:gap-12 flex-wrap justify-center">
-                    <span class="text-5xl md:text-8xl font-black heading-font tracking-tighter italic uppercase">BEES</span>
-                    <div class="bg-white p-4 rounded-[2rem] shadow-2xl transform hover:scale-110 transition duration-500">
-                        <img src="https://cmsv2-assets.apptegy.net/uploads/7672/logo/9154/bee_new.png" alt="Bees Logo" class="h-16 md:h-28 w-auto drop-shadow-md">
+            <div class="max-w-7xl mx-auto relative z-10">
+                <div class="flex items-center justify-center gap-2 md:gap-12 whitespace-nowrap">
+                    <span class="header-text text-[10vw] md:text-8xl font-black heading-font tracking-tighter italic uppercase">BEES</span>
+                    <div class="bg-white p-2 md:p-4 rounded-xl md:rounded-[2rem] shadow-2xl transform hover:scale-110 transition duration-500 flex-shrink-0">
+                        <img src="https://cmsv2-assets.apptegy.net/uploads/7672/logo/9154/bee_new.png" alt="Bees Logo" class="header-logo h-10 md:h-28 w-auto drop-shadow-md">
                     </div>
-                    <span class="text-5xl md:text-8xl font-black heading-font tracking-tighter italic uppercase">GOLF</span>
+                    <span class="header-text text-[10vw] md:text-8xl font-black heading-font tracking-tighter italic uppercase">GOLF</span>
                 </div>
             </div>
         </header>
@@ -158,7 +177,7 @@
         <main class="max-w-7xl mx-auto px-6 py-10 w-full flex-grow">
             <!-- TABS -->
             <div class="flex border-b border-slate-200 mb-10 overflow-x-auto no-scrollbar">
-                <button onclick="showSection('drills')" id="tab-drills" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest active-tab whitespace-nowrap">Training Grounds</button>
+                <button onclick="showSection('drills')" id="tab-drills" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest active-tab whitespace-nowrap">Drills and Competitions</button>
                 <button onclick="showSection('leaderboard')" id="tab-leaderboard" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 whitespace-nowrap">Rankings</button>
                 <button onclick="showSection('profile')" id="tab-profile" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 whitespace-nowrap">My Stats</button>
             </div>
@@ -178,10 +197,10 @@
                         <h2 class="text-4xl font-black heading-font tracking-tighter italic uppercase">Rankings</h2>
                         <p class="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">Elite Performance Leaderboards</p>
                     </div>
-                    <div class="bg-slate-200 p-1 rounded-2xl flex">
-                        <button onclick="setRankingMode('best')" id="mode-best" class="px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-black text-white transition">All-Time Round</button>
-                        <button onclick="setRankingMode('avg')" id="mode-avg" class="px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition">Best Average</button>
-                        <button onclick="setRankingMode('volume')" id="mode-volume" class="px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition">Most Active</button>
+                    <div class="bg-slate-200 p-1 rounded-2xl flex overflow-x-auto no-scrollbar">
+                        <button onclick="setRankingMode('best')" id="mode-best" class="px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-black text-white transition whitespace-nowrap">All-Time Round</button>
+                        <button onclick="setRankingMode('avg')" id="mode-avg" class="px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition whitespace-nowrap">Best Average</button>
+                        <button onclick="setRankingMode('volume')" id="mode-volume" class="px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition whitespace-nowrap">Most Active</button>
                     </div>
                 </div>
 
@@ -242,14 +261,42 @@
         </main>
     </div>
 
+    <!-- INSTRUCTION MODAL -->
+    <div id="instruction-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[250] flex items-center justify-center p-6">
+        <div class="bg-white rounded-[2.5rem] max-w-lg w-full p-10 relative shadow-2xl">
+            <button onclick="closeInstructionModal()" class="absolute top-6 right-6 text-slate-300 hover:text-black">
+                <i class="fa-solid fa-circle-xmark text-2xl"></i>
+            </button>
+            <div class="flex items-center gap-4 mb-6">
+                <div id="inst-modal-icon" class="w-12 h-12 bg-purple-100 text-purple-700 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                    <h2 id="inst-modal-title" class="text-xl font-black heading-font italic uppercase tracking-tighter">Drill Rules</h2>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Official Competition Guidelines</span>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-6 rounded-2xl max-h-[60vh] overflow-y-auto no-scrollbar">
+                <p id="inst-modal-body" class="text-slate-700 text-xs font-medium leading-relaxed whitespace-pre-wrap"></p>
+            </div>
+            <button onclick="closeInstructionModal()" class="mt-8 w-full py-4 bg-black text-white font-black rounded-2xl uppercase text-[10px] tracking-widest">Got it</button>
+        </div>
+    </div>
+
     <!-- LOG MODAL -->
     <div id="log-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-[100] flex items-center justify-center p-6">
-        <div class="bg-white rounded-[3rem] max-w-md w-full p-12 relative shadow-2xl">
+        <div class="bg-white rounded-[3rem] max-w-md w-full p-12 relative shadow-2xl overflow-y-auto max-h-[90vh]">
             <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-300 hover:text-black">
                 <i class="fa-solid fa-xmark text-2xl"></i>
             </button>
             <h2 id="modal-title" class="text-2xl font-black heading-font italic mb-2 uppercase tracking-tighter">Log Score</h2>
-            <p id="modal-instructions" class="text-slate-500 text-[11px] mb-8 font-medium italic leading-relaxed"></p>
+            <div class="bg-slate-50 p-6 rounded-2xl mb-8 instruction-tap-area" onclick="showFullInstructionsFromModal()">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-[9px] font-bold text-purple-600 uppercase tracking-widest">Read Full Rules</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-purple-300"></i>
+                </div>
+                <p id="modal-instructions" class="text-slate-600 text-[11px] font-medium leading-relaxed line-clamp-3 italic"></p>
+            </div>
             
             <form id="drill-form" onsubmit="handleLogForm(event)" class="space-y-6">
                 <input type="hidden" id="current-par" value="36">
@@ -280,18 +327,57 @@
         const BASE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxji4lQkqQLJBFyCWbanjl4Lc0OXaHoVDOobJsXwJ2mjPjR-8GcTXUpr2aWkNgnQ3l1og/exec"; 
 
         const DRILLS = [
-            { name: "Up and Down", sheetName: "Up and Down", par: 36, icon: "fa-arrows-up-to-line", instructions: "18 Holes. Drop balls in random lies. Aim for 2 strokes or less." },
-            { name: "Birdie Time", sheetName: "Birdie Time", par: 54, icon: "fa-feather", instructions: "18 Holes. Play from 30, 45, and 60 yards." },
-            { name: "2 Putt Drill", sheetName: "2 Putt Drill", par: 36, icon: "fa-bullseye", instructions: "18 Holes. Random holes from 15-30 feet." },
-            { name: "Lag Putting", sheetName: "Lag Putting", par: 36, icon: "fa-flag", instructions: "18 Holes. 30ft, 40ft, 50ft. Hit the 3ft square or score a 3." },
-            { name: "Eagle Mountain 9", sheetName: "Rounds (Eagle Mountain)", par: 36, icon: "fa-mountain-sun", isRound: true, instructions: "Play 9 holes at Eagle Mountain." },
-            { name: "Region Round", sheetName: "Rounds (Region Courses)", par: 36, icon: "fa-map-location-dot", isRound: true, isRegion: true, instructions: "Play 9 holes at any region course." }
+            { 
+                name: "Up and Down", 
+                sheetName: "Up and Down", 
+                par: 36, 
+                icon: "fa-arrows-up-to-line", 
+                instructions: "Start with 6 golf balls. Go to one side of the green and drop the balls in random lies. Pick a hole and try and go up and down in 2 strokes or less. Repeat this process from the other side and from the back of the green. You will play a total of 18 holes. Par is 36. Record your total strokes for the dril. (Do not record it as over or under par, that will be automatically calculated after you enter your score)" 
+            },
+            { 
+                name: "Birdie Time", 
+                sheetName: "Birdie Time", 
+                par: 54, 
+                icon: "fa-feather", 
+                instructions: "Start with 6 golf balls and play at the nursery green (By hole 17). Go to 30 yards out from the front pin (Use a range finder to get the correct distance). Play 3 balls to the front pin and 3 to the back pin. Par is 3, keep your score. Repeat this from 45 yards and then 60 yards. You will play a total of 18 holes by the end of the drill. Par is 54. Record your total strokes and your score to par will be automatically calculated. If you shoot 3 under for the round of 18, your score would be 51. That is the score you record." 
+            },
+            { 
+                name: "2 Putt Drill", 
+                sheetName: "2 Putt Drill", 
+                par: 36, 
+                icon: "fa-bullseye", 
+                instructions: "Start with 1 ball on the practice green. Play to random holes from random distances from 15 to 30 feet. (Don't try and game the drill by doing all 15 foot putts.) Try and 2 putt or less on every hole. Play 18 holes. Par is 36. Record your total strokes. (If you are 3 over then you record a 39, not +3)." 
+            },
+            { 
+                name: "Lag Putting", 
+                sheetName: "Lag Putting", 
+                par: 36, 
+                icon: "fa-flag", 
+                instructions: "Start with 6 golf balls. Play 6 putts from 30 feet, 40 feet and 50 feet. Place 4 tees around the hole of 3 feets. If you putt it inside of the 3 foot square then you can try and putt it in for a 2. If you miss the square it is automatically a 3, no chance to putt it in. You play 18 holes and it's a par 36. Record your total score after 18 holes." 
+            },
+            { 
+                name: "Eagle Mountain 9", 
+                sheetName: "Rounds (Eagle Mountain)", 
+                par: 36, 
+                icon: "fa-mountain-sun", 
+                isRound: true, 
+                instructions: "Play 9 holes at Eagle Mountain and Record your score. If you play 18, just record it as 2, 9 hole rounds (Front and back)." 
+            },
+            { 
+                name: "Region Round", 
+                sheetName: "Rounds (Region Courses)", 
+                par: 36, 
+                icon: "fa-map-location-dot", 
+                isRound: true, 
+                isRegion: true, 
+                instructions: "Play 9 holes at any region golf course and Record your score. If you play 18, just record it as 2, 9 hole rounds (Front and back)." 
+            }
         ];
 
         let currentUser = null;
         let masterData = {}; 
         let authMode = 'login';
-        let rankingMode = 'best'; // 'best', 'avg', 'volume'
+        let rankingMode = 'best'; 
 
         window.onload = () => {
             renderDrills();
@@ -328,8 +414,16 @@
                         <div class="absolute bottom-4 right-6 text-white/30 text-[9px] font-black uppercase tracking-widest">Par ${drill.par}</div>
                     </div>
                     <div class="p-8 flex-grow flex flex-col">
-                        <h3 class="text-2xl font-black mb-3 italic tracking-tighter uppercase leading-tight">${drill.name}</h3>
-                        <p class="text-slate-500 text-xs leading-relaxed mb-8 line-clamp-2 italic">${drill.instructions}</p>
+                        <h3 class="text-2xl font-black mb-1 italic tracking-tighter uppercase leading-tight">${drill.name}</h3>
+                        
+                        <div onclick="showFullInstructions('${drill.name}')" class="p-2 -mx-2 mb-8 instruction-tap-area group">
+                             <div class="flex justify-between items-center mb-1">
+                                <span class="text-[8px] font-black text-purple-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition">View Full Rules</span>
+                                <i class="fa-solid fa-expand text-[8px] text-slate-300 group-hover:text-purple-400"></i>
+                             </div>
+                             <p class="text-slate-500 text-[11px] leading-relaxed line-clamp-3 italic">${drill.instructions}</p>
+                        </div>
+
                         <button onclick="attemptLog('${drill.name}')" class="mt-auto w-full py-4 bg-black text-white font-black rounded-2xl hover:bg-purple-700 transition uppercase text-[10px] tracking-widest">
                             Log Performance
                         </button>
@@ -338,14 +432,32 @@
             `).join('');
         }
 
+        function showFullInstructions(drillName) {
+            const drill = DRILLS.find(d => d.name === drillName);
+            if (!drill) return;
+            document.getElementById('inst-modal-title').innerText = drill.name;
+            document.getElementById('inst-modal-body').innerText = drill.instructions;
+            document.getElementById('inst-modal-icon').innerHTML = `<i class="fa-solid ${drill.icon}"></i>`;
+            document.getElementById('instruction-modal').classList.remove('hidden');
+        }
+
+        function showFullInstructionsFromModal() {
+            const drillName = document.getElementById('current-drill-name').value;
+            showFullInstructions(drillName);
+        }
+
+        function closeInstructionModal() {
+            document.getElementById('instruction-modal').classList.add('hidden');
+        }
+
         function setRankingMode(mode) {
             rankingMode = mode;
             ['best', 'avg', 'volume'].forEach(m => {
                 const el = document.getElementById('mode-'+m);
                 if(m === mode) {
-                    el.className = 'px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-black text-white transition';
+                    el.className = 'px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-black text-white transition whitespace-nowrap';
                 } else {
-                    el.className = 'px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition';
+                    el.className = 'px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition whitespace-nowrap';
                 }
             });
             processRankings();
@@ -536,12 +648,6 @@
             document.body.style.overflow = 'hidden';
         }
 
-        function closeHistory() {
-            document.getElementById('history-overlay').classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        // --- Standard Logic (Auth/Nav/Log) ---
         function showAuth() { document.getElementById('auth-screen').classList.remove('hidden'); }
         function hideAuth() { document.getElementById('auth-screen').classList.add('hidden'); }
         function toggleAuthMode() {
@@ -603,7 +709,7 @@
                 profileStats.classList.remove('opacity-30', 'pointer-events-none');
                 updateStatsDisplay();
             } else {
-                authContainer.innerHTML = `<button onclick="showAuth()" class="bg-purple-700 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 transition">Login</button>`;
+                authContainer.innerHTML = `<button onclick="showAuth()" class="bg-purple-700 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 transition">Login</button>`;
                 profileCard.innerHTML = `<div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6"><i class="fa-solid fa-user-lock text-4xl text-slate-200"></i></div><h3 class="text-xl font-black italic tracking-tighter uppercase mb-2">Stats Locked</h3><p class="text-slate-400 text-[10px] font-bold mb-8 italic uppercase">Login to view progress</p><button onclick="showAuth()" class="w-full py-5 rounded-2xl bg-black text-white font-black uppercase text-[10px] tracking-widest">Login</button>`;
                 profileStats.classList.add('opacity-30', 'pointer-events-none');
             }
