@@ -597,7 +597,21 @@
             
             const extras = document.getElementById('extra-fields');
             extras.innerHTML = "";
-            if (drill.isRegion) extras.innerHTML += `<div><label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Select Course</label><select id="course-select" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none font-bold uppercase text-xs appearance-none"><option>Eagle Mountain</option><option>The Oaks</option><option>East Bay</option><option>Gladstan</option><option>Hobble Creek</option><option>Spanish Oaks</option></select></div>`;
+            if (drill.isRegion) {
+                extras.innerHTML += `
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Select Course</label>
+                        <select id="course-select" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none font-bold uppercase text-xs appearance-none">
+                            <option>Remuda</option>
+                            <option>The Barn</option>
+                            <option>Crane Field</option>
+                            <option>Riverside</option>
+                            <option>The Bluff</option>
+                            <option>Wolf Creek</option>
+                            <option>Sun Hills</option>
+                        </select>
+                    </div>`;
+            }
             if (drill.isRound) extras.innerHTML += `<div><label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Current Side</label><div class="flex gap-3"><label class="flex-1"><input type="radio" name="side" value="Front" checked class="hidden peer"><div class="w-full text-center py-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase peer-checked:bg-black peer-checked:text-white cursor-pointer transition">Front 9</div></label><label class="flex-1"><input type="radio" name="side" value="Back" class="hidden peer"><div class="w-full text-center py-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase peer-checked:bg-black peer-checked:text-white cursor-pointer transition">Back 9</div></label></div></div>`;
             document.getElementById('log-modal').classList.remove('hidden');
         }
