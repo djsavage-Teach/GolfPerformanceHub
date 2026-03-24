@@ -41,6 +41,7 @@
         .active-tab {
             border-bottom: 4px solid #7000cc;
             color: #7000cc;
+            background-color: rgba(112, 0, 204, 0.03);
         }
 
         .login-bg {
@@ -90,19 +91,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Shimmer Animation */
-        .shimmer {
-            background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-        
-        .shimmer-dark {
-            background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
@@ -111,6 +99,20 @@
         @media (max-width: 480px) {
             .header-text { font-size: 10.5vw !important; }
             .header-logo { height: 12vw !important; }
+        }
+
+        /* 2x2 Grid for Mobile Tabs */
+        .mobile-tab-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: none;
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-tab-grid {
+                display: flex;
+                border-bottom: 1px solid #e2e8f0;
+            }
         }
     </style>
 </head>
@@ -190,23 +192,31 @@
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-6 py-10 w-full flex-grow">
-            <!-- TABS -->
-            <div class="flex border-b border-slate-200 mb-10 overflow-x-auto no-scrollbar">
-                <button onclick="showSection('drills')" id="tab-drills" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest active-tab whitespace-nowrap">Drills</button>
-                <button onclick="showSection('play')" id="tab-play" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 whitespace-nowrap">Let's Play</button>
-                <button onclick="showSection('leaderboard')" id="tab-leaderboard" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 whitespace-nowrap">Rankings</button>
-                <button onclick="showSection('profile')" id="tab-profile" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 whitespace-nowrap">My Stats</button>
+        <main class="max-w-7xl mx-auto px-6 py-6 md:py-10 w-full flex-grow">
+            <!-- TABS: 2x2 Grid on Mobile, Flex Row on Desktop -->
+            <div class="mobile-tab-grid mb-10 border border-slate-200 md:border-none rounded-3xl overflow-hidden md:rounded-none">
+                <button onclick="showSection('drills')" id="tab-drills" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest active-tab border-r md:border-r-0 border-b border-slate-200 md:border-b-0 whitespace-nowrap flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-flag-checkered text-[12px] md:hidden"></i> Drills
+                </button>
+                <button onclick="showSection('play')" id="tab-play" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 border-b border-slate-200 md:border-b-0 whitespace-nowrap flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-golf-ball-tee text-[12px] md:hidden"></i> Let's Play
+                </button>
+                <button onclick="showSection('leaderboard')" id="tab-leaderboard" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 border-r md:border-r-0 whitespace-nowrap flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-trophy text-[12px] md:hidden"></i> Rankings
+                </button>
+                <button onclick="showSection('profile')" id="tab-profile" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 whitespace-nowrap flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-user-gear text-[12px] md:hidden"></i> My Stats
+                </button>
             </div>
 
             <!-- DRILLS SECTION -->
             <section id="section-drills" class="space-y-10">
                 <h2 class="text-3xl font-black heading-font tracking-tighter italic uppercase text-slate-900">Training Exercises</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="drills-container">
-                    <!-- Initial Loading Placeholder -->
+                    <!-- Loading Placeholder -->
                     <div class="col-span-full py-20 text-center space-y-4">
                         <div class="inline-block loading-spinner border-purple-600 !w-8 !h-8 mb-4"></div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">Loading drills...</p>
+                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse italic">Loading drills...</p>
                     </div>
                 </div>
             </section>
@@ -217,7 +227,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="play-container">
                     <div class="col-span-full py-20 text-center space-y-4">
                         <div class="inline-block loading-spinner border-purple-600 !w-8 !h-8 mb-4"></div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">Loading courses...</p>
+                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse italic">Loading courses...</p>
                     </div>
                 </div>
             </section>
@@ -238,7 +248,7 @@
                 <div id="rankings-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="col-span-full py-20 text-center space-y-4">
                         <div class="inline-block loading-spinner border-purple-600 !w-8 !h-8 mb-4"></div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">Getting rankings...</p>
+                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse italic">Getting rankings...</p>
                     </div>
                 </div>
             </section>
@@ -251,10 +261,9 @@
                         <!-- Initial Placeholder Content for My Stats -->
                         <div id="profile-loading-overlay" class="py-20 text-center space-y-4">
                             <div class="inline-block loading-spinner border-purple-600 !w-8 !h-8 mb-4"></div>
-                            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">Building profile...</p>
+                            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse italic">Building profile...</p>
                         </div>
 
-                        <!-- Content will render here -->
                         <div id="profile-actual-content" class="hidden space-y-10">
                             <!-- Summary Row -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -499,8 +508,8 @@
             });
 
             document.getElementById('stat-sessions').innerText = totalCount;
-            const totalAvg = totalCount > 0 ? (totalDiff / totalCount).toFixed(1) : "E";
-            document.getElementById('stat-avg').innerText = totalAvg > 0 ? `+${totalAvg}` : (totalAvg === "E" ? "E" : totalAvg);
+            const totalAvgValue = totalCount > 0 ? (totalDiff / totalCount).toFixed(1) : "E";
+            document.getElementById('stat-avg').innerText = (totalAvgValue > 0) ? `+${totalAvgValue}` : (totalAvgValue === "E" ? "E" : totalAvgValue);
 
             document.getElementById('personal-drills-grid').innerHTML = drillCards.map((c, idx) => `
                 <div class="stat-card p-8 flex flex-col shadow-sm">
@@ -591,8 +600,6 @@
             currentUser = { name, email };
             localStorage.setItem('bees_golf_user', JSON.stringify(currentUser));
             setLoading(btn, false); hideAuth(); updateUI();
-            
-            // Re-fetch to populate stats immediately
             refreshData();
         }
 
@@ -619,7 +626,6 @@
                 `;
                 profileStats.classList.remove('opacity-30', 'pointer-events-none');
                 
-                // Show loading if data isn't here yet
                 if (!masterData || Object.keys(masterData).length === 0) {
                     document.getElementById('profile-loading-overlay').classList.remove('hidden');
                     document.getElementById('profile-actual-content').classList.add('hidden');
@@ -655,12 +661,8 @@
             document.getElementById('input-score').value = "";
             
             const parDisplay = document.getElementById('modal-par-display');
-            if (drill.isPlay) {
-                parDisplay.classList.add('hidden');
-            } else {
-                parDisplay.classList.remove('hidden');
-                parDisplay.innerText = `PAR ${drill.par}`;
-            }
+            if (drill.isPlay) parDisplay.classList.add('hidden');
+            else { parDisplay.classList.remove('hidden'); parDisplay.innerText = `PAR ${drill.par}`; }
             
             const extras = document.getElementById('extra-fields');
             extras.innerHTML = "";
@@ -720,11 +722,12 @@
             document.getElementById('tab-'+id).classList.add('active-tab');
             document.getElementById('tab-'+id).classList.remove('text-slate-400');
             
-            // Only process if we have data
             if (masterData && Object.keys(masterData).length > 0) {
                 if(id === 'leaderboard') processRankings();
                 if(id === 'profile') updateStatsDisplay();
             }
+            // Scroll to top of content when switching tabs on mobile
+            if (window.innerWidth < 768) window.scrollTo({ top: 400, behavior: 'smooth' });
         }
 
         function showToast(msg) {
