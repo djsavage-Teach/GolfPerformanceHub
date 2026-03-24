@@ -82,6 +82,14 @@
             overflow: hidden;
         }
 
+        .stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 2rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
         @media (max-width: 480px) {
             .header-text { font-size: 10.5vw !important; }
             .header-logo { height: 12vw !important; }
@@ -203,25 +211,30 @@
 
             <!-- PROFILE SECTION -->
             <section id="section-profile" class="hidden space-y-12">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     <div id="profile-user-card" class="bg-white p-12 rounded-[3rem] border border-slate-200 text-center flex flex-col items-center"></div>
-                    <div id="profile-stats-container" class="lg:col-span-2 space-y-8 opacity-30 pointer-events-none">
+                    <div id="profile-stats-container" class="lg:col-span-3 space-y-10 opacity-30 pointer-events-none">
+                        <!-- Summary Row -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="bg-black text-white p-10 rounded-[2.5rem] flex flex-col justify-between h-48">
-                                <span class="text-purple-500 text-[10px] font-black uppercase tracking-widest">Total Sessions</span>
+                                <span class="text-purple-500 text-[10px] font-black uppercase tracking-widest">Lifetime Sessions</span>
                                 <h4 class="text-6xl font-black heading-font italic" id="stat-sessions">0</h4>
                             </div>
-                            <div class="bg-white p-10 rounded-[2.5rem] border border-slate-200 flex flex-col justify-between h-48">
-                                <span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Season Avg (To Par)</span>
+                            <div class="bg-white p-10 rounded-[2.5rem] border border-slate-200 flex flex-col justify-between h-48 shadow-sm">
+                                <span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">All Drills Avg (To Par)</span>
                                 <h4 class="text-6xl font-black heading-font italic text-slate-900" id="stat-avg">E</h4>
                             </div>
                         </div>
-                        <div class="bg-white border border-slate-200 rounded-[3rem] overflow-hidden">
-                            <div class="p-8 border-b border-slate-100 flex justify-between items-center">
-                                <h3 class="font-black heading-font italic uppercase text-lg">Drill Breakdown</h3>
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Syncing Data...</span>
+
+                        <!-- Personal Drill Leaderboards -->
+                        <div>
+                            <div class="flex justify-between items-end mb-8 px-2">
+                                <div>
+                                    <h3 class="text-2xl font-black heading-font italic uppercase tracking-tighter">My Drill Logs</h3>
+                                    <p class="text-slate-400 font-bold uppercase text-[9px] tracking-widest mt-1">Personal Best & Historical Performance</p>
+                                </div>
                             </div>
-                            <div id="drill-breakdown-container" class="divide-y divide-slate-50"></div>
+                            <div id="personal-drills-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                         </div>
                     </div>
                 </div>
@@ -299,7 +312,6 @@
         }
 
         function createCardHTML(drill) {
-            // Pull instructions directly from cell A1 of the drill's sheet if available
             const instructions = (masterData[drill.sheetName] && masterData[drill.sheetName][0] && masterData[drill.sheetName][0][0]) 
                                 || "Loading instructions from playbook...";
 
@@ -353,7 +365,7 @@
                 const userAggr = {};
 
                 rows.forEach((row, idx) => {
-                    if (idx === 0) return; // Skip A1 instructions
+                    if (idx === 0) return;
                     const email = row[0];
                     const score = parseInt(row[1]);
                     if (!email || isNaN(score)) return;
@@ -403,17 +415,33 @@
         function updateStatsDisplay() {
             if (!currentUser || !masterData) return;
             let totalCount = 0, totalDiff = 0;
-            const drillSummaries = [];
+            const drillCards = [];
 
             DRILLS.forEach(d => {
                 const rows = masterData[d.sheetName] || [];
-                const userScores = rows.filter(r => r[0] === currentUser.email).map(r => ({ score: parseInt(r[1]) }));
-                if (userScores.length > 0) {
-                    const best = Math.min(...userScores.map(s => s.score));
-                    const avg = userScores.reduce((acc, curr) => acc + (curr.score - d.par), 0) / userScores.length;
-                    totalCount += userScores.length;
-                    totalDiff += userScores.reduce((acc, curr) => acc + (curr.score - d.par), 0);
-                    drillSummaries.push({ name: d.name, icon: d.icon, count: userScores.length, bestDiff: best - d.par, avgDiff: avg.toFixed(1) });
+                const userSessions = rows.filter((r, i) => i > 0 && r[0] === currentUser.email).map(r => ({
+                    score: parseInt(r[1]),
+                    date: r[2] || 'N/A',
+                    side: r[3] || null,
+                    course: r[4] || null,
+                    diff: parseInt(r[1]) - d.par
+                }));
+
+                if (userSessions.length > 0) {
+                    const sorted = [...userSessions].sort((a, b) => a.diff - b.diff);
+                    const avg = userSessions.reduce((acc, curr) => acc + curr.diff, 0) / userSessions.length;
+                    totalCount += userSessions.length;
+                    totalDiff += userSessions.reduce((acc, curr) => acc + curr.diff, 0);
+
+                    drillCards.push({
+                        drill: d,
+                        sessions: userSessions,
+                        top5: sorted.slice(0, 5),
+                        count: userSessions.length,
+                        avgDiff: avg.toFixed(1)
+                    });
+                } else {
+                    drillCards.push({ drill: d, sessions: [], top5: [], count: 0, avgDiff: null });
                 }
             });
 
@@ -421,23 +449,64 @@
             const totalAvg = totalCount > 0 ? (totalDiff / totalCount).toFixed(1) : "E";
             document.getElementById('stat-avg').innerText = totalAvg > 0 ? `+${totalAvg}` : (totalAvg === "E" ? "E" : totalAvg);
 
-            document.getElementById('drill-breakdown-container').innerHTML = DRILLS.map(d => {
-                const s = drillSummaries.find(summary => summary.name === d.name);
-                return `
-                    <div class="p-8 flex items-center justify-between group">
-                        <div class="flex items-center gap-6">
-                            <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400"><i class="fa-solid ${d.icon}"></i></div>
+            document.getElementById('personal-drills-grid').innerHTML = drillCards.map((c, idx) => `
+                <div class="stat-card p-8 flex flex-col shadow-sm">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400"><i class="fa-solid ${c.drill.icon}"></i></div>
                             <div>
-                                <h4 class="font-black uppercase text-sm tracking-tighter leading-none mb-1">${d.name}</h4>
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${s ? s.count + ' Sessions' : 'No Data'}</span>
+                                <h4 class="font-black italic uppercase text-lg tracking-tighter leading-none mb-1">${c.drill.name}</h4>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${c.count} Total Sessions</span>
                             </div>
                         </div>
-                        <div class="flex gap-12 text-right">
-                            ${s ? `<div><div class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Best</div><div class="font-black italic text-lg ${s.bestDiff <= 0 ? 'text-green-500' : 'text-red-500'}">${s.bestDiff > 0 ? '+'+s.bestDiff : (s.bestDiff === 0 ? 'E' : s.bestDiff)}</div></div><div><div class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg</div><div class="font-black italic text-lg ${parseFloat(s.avgDiff) <= 0 ? 'text-green-500' : 'text-red-500'}">${parseFloat(s.avgDiff) > 0 ? '+'+s.avgDiff : (parseFloat(s.avgDiff) === 0 ? 'E' : s.avgDiff)}</div></div>` : '<span class="text-slate-300 font-bold uppercase text-[9px] tracking-widest">---</span>'}
+                        <div class="text-right">
+                            <div class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg to Par</div>
+                            <div class="font-black italic text-xl ${parseFloat(c.avgDiff) <= 0 ? 'text-green-500' : 'text-red-500'}">
+                                ${c.avgDiff ? (parseFloat(c.avgDiff) > 0 ? '+'+c.avgDiff : (parseFloat(c.avgDiff) === 0 ? 'E' : c.avgDiff)) : '---'}
+                            </div>
                         </div>
                     </div>
-                `;
-            }).join('');
+
+                    <div class="space-y-2 mb-6">
+                        <span class="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-3">Your Top 5 Rounds</span>
+                        ${c.top5.length > 0 ? c.top5.map((s, i) => `
+                            <div class="flex justify-between items-center p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-black italic text-slate-300 w-3">${i+1}</span>
+                                    <span class="text-[9px] font-bold uppercase text-slate-500">${s.course || 'Drill Session'}</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="text-[9px] font-bold text-slate-300">${s.date.toString().split('T')[0]}</span>
+                                    <span class="font-black italic text-sm ${s.diff <= 0 ? 'text-green-600' : 'text-red-500'}">
+                                        ${s.diff > 0 ? '+'+s.diff : (s.diff === 0 ? 'E' : s.diff)}
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('') : '<div class="py-6 text-center text-slate-300 font-bold text-[9px] uppercase italic tracking-widest">No entries yet</div>'}
+                    </div>
+
+                    <button onclick="toggleDrillHistory(${idx})" class="w-full py-4 border border-slate-100 rounded-2xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition">
+                        View All Scores
+                    </button>
+
+                    <div id="history-${idx}" class="hidden mt-6 pt-6 border-t border-slate-50 space-y-2 max-h-48 overflow-y-auto no-scrollbar">
+                         <span class="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-3">Full History</span>
+                         ${c.sessions.sort((a,b) => new Date(b.date) - new Date(a.date)).map(s => `
+                            <div class="flex justify-between items-center px-2 py-1">
+                                <span class="text-[9px] font-medium text-slate-400">${s.date.toString().split('T')[0]} ${s.side ? '('+s.side+')' : ''}</span>
+                                <span class="font-black italic text-xs ${s.diff <= 0 ? 'text-green-600' : 'text-red-500'}">
+                                    ${s.diff > 0 ? '+'+s.diff : (s.diff === 0 ? 'E' : s.diff)}
+                                </span>
+                            </div>
+                         `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleDrillHistory(idx) {
+            const el = document.getElementById(`history-${idx}`);
+            el.classList.toggle('hidden');
         }
 
         function showAuth() { document.getElementById('auth-screen').classList.remove('hidden'); }
@@ -484,13 +553,27 @@
                 welcome.classList.remove('hidden');
                 userDisp.innerText = currentUser.name.split(' ')[0];
                 authContainer.innerHTML = `<button onclick="handleLogout()" class="border-2 border-purple-800 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-800 transition">Logout</button>`;
-                profileCard.innerHTML = `<div class="w-24 h-24 bg-white shadow-xl rounded-[2rem] flex items-center justify-center mb-6 p-4 border border-slate-100"><img src="https://cmsv2-assets.apptegy.net/uploads/7672/logo/9154/bee_new.png" class="w-full h-full object-contain"></div><h3 class="text-2xl font-black italic tracking-tighter uppercase mb-1">${currentUser.name}</h3><p class="text-slate-400 text-[10px] font-bold mb-10 uppercase">${currentUser.email}</p><button onclick="handleLogout()" class="w-full py-4 rounded-2xl border border-slate-200 text-slate-400 font-black uppercase text-[10px] tracking-widest hover:text-red-500 transition">Logout</button>`;
+                profileCard.innerHTML = `
+                    <div class="w-24 h-24 bg-white shadow-xl rounded-[2rem] flex items-center justify-center mb-6 p-4 border border-slate-100">
+                        <img src="https://cmsv2-assets.apptegy.net/uploads/7672/logo/9154/bee_new.png" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-2xl font-black italic tracking-tighter uppercase mb-1">${currentUser.name}</h3>
+                    <p class="text-slate-400 text-[10px] font-bold mb-10 uppercase">${currentUser.email}</p>
+                    <button onclick="handleLogout()" class="w-full py-4 rounded-2xl border border-slate-200 text-slate-400 font-black uppercase text-[10px] tracking-widest hover:text-red-500 transition">Logout</button>
+                `;
                 profileStats.classList.remove('opacity-30', 'pointer-events-none');
                 updateStatsDisplay();
             } else {
                 welcome.classList.add('hidden');
                 authContainer.innerHTML = `<button onclick="showAuth()" class="bg-purple-700 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 transition">Login</button>`;
-                profileCard.innerHTML = `<div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6"><i class="fa-solid fa-user-lock text-4xl text-slate-200"></i></div><h3 class="text-xl font-black italic tracking-tighter uppercase mb-2">Stats Locked</h3><p class="text-slate-400 text-[10px] font-bold mb-8 italic uppercase">Login to view progress</p><button onclick="showAuth()" class="w-full py-5 rounded-2xl bg-black text-white font-black uppercase text-[10px] tracking-widest">Login</button>`;
+                profileCard.innerHTML = `
+                    <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-user-lock text-4xl text-slate-200"></i>
+                    </div>
+                    <h3 class="text-xl font-black italic tracking-tighter uppercase mb-2">Stats Locked</h3>
+                    <p class="text-slate-400 text-[10px] font-bold mb-8 italic uppercase">Login to view progress</p>
+                    <button onclick="showAuth()" class="w-full py-5 rounded-2xl bg-black text-white font-black uppercase text-[10px] tracking-widest">Login</button>
+                `;
                 profileStats.classList.add('opacity-30', 'pointer-events-none');
             }
         }
@@ -525,7 +608,16 @@
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             const score = parseInt(document.getElementById('input-score').value);
-            const payload = { action: 'logScore', sheetName: document.getElementById('current-sheet-name').value, data: { email: currentUser.email, score: score, side: document.querySelector('input[name="side"]:checked')?.value || null, course: document.getElementById('course-select')?.value || null } };
+            const payload = { 
+                action: 'logScore', 
+                sheetName: document.getElementById('current-sheet-name').value, 
+                data: { 
+                    email: currentUser.email, 
+                    score: score, 
+                    side: document.querySelector('input[name="side"]:checked')?.value || null, 
+                    course: document.getElementById('course-select')?.value || null 
+                } 
+            };
             setLoading(btn, true);
             if (BASE_SCRIPT_URL) await fetch(BASE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             setLoading(btn, false); closeModal(); refreshData(); showToast("Score Saved");
