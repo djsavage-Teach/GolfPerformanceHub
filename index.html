@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bees Golf Training - Performance Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --bee-purple: #7000cc;
+            --bee-dark: #0f0f0f;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f1f1;
+            color: #0f172a;
+        }
+
+        .heading-font { font-family: 'Syncopate', sans-serif; }
+
+        .bee-gradient {
+            background: linear-gradient(135deg, #4c008a 0%, #000000 100%);
+        }
+
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgba(112, 0, 204, 0.15);
+        }
+
+        .active-tab {
+            border-bottom: 4px solid #7000cc;
+            color: #7000cc;
+        }
+
+        .login-bg {
+            background: radial-gradient(circle at center, #1e0036 0%, #000000 100%);
+        }
+
+        .btn-primary {
+            background-color: #7000cc;
+            color: white;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #5900a3;
+            transform: scale(1.02);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ranking-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 2rem;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUTHENTICATION OVERLAY -->
+    <div id="auth-screen" class="fixed inset-0 z-[200] flex items-center justify-center login-bg hidden">
+        <div class="relative bg-white w-full max-w-md mx-4 rounded-[2.5rem] shadow-2xl overflow-hidden">
+            <button onclick="hideAuth()" class="absolute top-6 right-6 text-white/50 hover:text-white z-10">
+                <i class="fa-solid fa-circle-xmark text-2xl"></i>
+            </button>
+            <div class="bee-gradient p-10 text-white text-center">
+                <div class="w-20 h-20 bg-white rounded-2xl mx-auto mb-4 flex items-center justify-center border border-white/20 p-2 shadow-xl overflow-hidden">
+                    <img src="https://cmsv2-assets.apptegy.net/uploads/7672/logo/9154/bee_new.png" alt="Bees Logo" class="w-full h-full object-contain">
+                </div>
+                <h2 id="auth-title" class="text-lg font-bold heading-font tracking-tighter uppercase">Clubhouse Login</h2>
+            </div>
+            
+            <div class="p-8">
+                <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+                    <div id="name-field" class="hidden">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Full Name</label>
+                        <input type="text" id="auth-name" placeholder="First Last" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Email Address</label>
+                        <input type="email" required id="auth-email" placeholder="email@domain.com" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition font-medium">
+                    </div>
+                    <div id="auth-error" class="hidden text-red-500 text-[10px] font-bold uppercase tracking-tight text-center bg-red-50 p-3 rounded-xl border border-red-100 italic">
+                        Email not found. Check spelling or register.
+                    </div>
+                    <button type="submit" id="auth-submit-btn" class="w-full btn-primary font-black uppercase tracking-[0.2em] py-5 rounded-2xl shadow-xl mt-4 text-xs flex items-center justify-center gap-3">
+                        <span id="auth-btn-text">Sign In</span>
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+                    <p id="auth-toggle-text" class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Don't have an account?</p>
+                    <button id="auth-toggle-btn" onclick="toggleAuthMode()" class="text-purple-700 font-black text-xs uppercase tracking-widest hover:underline">
+                        Register
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP UI -->
+    <div id="main-app" class="min-h-screen flex flex-col">
+        <nav class="bg-black text-white sticky top-0 z-50 border-b border-purple-900/30">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="flex justify-between h-20 items-center">
+                    <div class="flex items-center gap-4 cursor-pointer" onclick="showSection('drills')">
+                        <span class="text-xs font-bold heading-font tracking-widest uppercase text-purple-400">Performance Hub</span>
+                    </div>
+                    <div id="nav-auth-container" class="flex items-center gap-4">
+                        <button onclick="refreshData()" class="text-white/40 hover:text-white transition p-2">
+                            <i id="refresh-icon" class="fa-solid fa-arrows-rotate text-sm"></i>
+                        </button>
+                        <button onclick="showAuth()" class="bg-purple-700 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 transition">
+                            Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <header class="bee-gradient text-white py-16 px-6 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]"></div>
+            <div class="max-w-7xl mx-auto flex flex-col items-center justify-center relative z-10">
+                <div class="flex items-center gap-4 md:gap-12 flex-wrap justify-center">
+                    <span class="text-5xl md:text-8xl font-black heading-font tracking-tighter italic uppercase">BEES</span>
+                    <div class="bg-white p-4 rounded-[2rem] shadow-2xl transform hover:scale-110 transition duration-500">
+                        <img src="https://cmsv2-assets.apptegy.net/uploads/7672/logo/9154/bee_new.png" alt="Bees Logo" class="h-16 md:h-28 w-auto drop-shadow-md">
+                    </div>
+                    <span class="text-5xl md:text-8xl font-black heading-font tracking-tighter italic uppercase">GOLF</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-6 py-10 w-full flex-grow">
+            <!-- TABS -->
+            <div class="flex border-b border-slate-200 mb-10 overflow-x-auto no-scrollbar">
+                <button onclick="showSection('drills')" id="tab-drills" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest active-tab whitespace-nowrap">Training Grounds</button>
+                <button onclick="showSection('leaderboard')" id="tab-leaderboard" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 whitespace-nowrap">Rankings</button>
+                <button onclick="showSection('profile')" id="tab-profile" class="px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 whitespace-nowrap">My Stats</button>
+            </div>
+
+            <!-- DRILLS SECTION -->
+            <section id="section-drills" class="space-y-10">
+                <h2 class="text-3xl font-black heading-font tracking-tighter italic uppercase">Active Drills</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="drills-container">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- RANKINGS SECTION -->
+            <section id="section-leaderboard" class="hidden space-y-12">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h2 class="text-4xl font-black heading-font tracking-tighter italic uppercase">Rankings</h2>
+                        <p class="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">Elite Performance Leaderboards</p>
+                    </div>
+                    <div class="bg-slate-200 p-1 rounded-2xl flex">
+                        <button onclick="setRankingMode('best')" id="mode-best" class="px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-black text-white transition">All-Time Round</button>
+                        <button onclick="setRankingMode('avg')" id="mode-avg" class="px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition">Best Average</button>
+                        <button onclick="setRankingMode('volume')" id="mode-volume" class="px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition">Most Active</button>
+                    </div>
+                </div>
+
+                <div id="rankings-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Dynamic Drill Boards -->
+                </div>
+            </section>
+
+            <!-- PROFILE SECTION -->
+            <section id="section-profile" class="hidden space-y-12">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div id="profile-user-card" class="bg-white p-12 rounded-[3rem] border border-slate-200 text-center flex flex-col items-center">
+                        <!-- Content injected by JS -->
+                    </div>
+
+                    <div id="profile-stats-container" class="lg:col-span-2 space-y-8 opacity-30 pointer-events-none">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-black text-white p-10 rounded-[2.5rem] flex flex-col justify-between h-48">
+                                <span class="text-purple-500 text-[10px] font-black uppercase tracking-widest">Total Sessions</span>
+                                <h4 class="text-6xl font-black heading-font italic" id="stat-sessions">0</h4>
+                            </div>
+                            <div class="bg-white p-10 rounded-[2.5rem] border border-slate-200 flex flex-col justify-between h-48">
+                                <span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Season Avg (To Par)</span>
+                                <h4 class="text-6xl font-black heading-font italic text-slate-900" id="stat-avg">E</h4>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded-[3rem] overflow-hidden">
+                            <div class="p-8 border-b border-slate-100 flex justify-between items-center">
+                                <h3 class="font-black heading-font italic uppercase text-lg">Drill Breakdown</h3>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Click for history</span>
+                            </div>
+                            <div id="drill-breakdown-container" class="divide-y divide-slate-50">
+                                <!-- User drill summaries -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DRILL HISTORY SUB-VIEW (Overlay) -->
+            <div id="history-overlay" class="fixed inset-0 bg-white z-[150] hidden flex flex-col">
+                <div class="p-8 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white">
+                    <button onclick="closeHistory()" class="text-black font-black uppercase text-[10px] tracking-widest flex items-center gap-3">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Stats
+                    </button>
+                    <div class="text-right">
+                        <h2 id="history-title" class="text-2xl font-black heading-font italic tracking-tighter uppercase">Drill History</h2>
+                        <span id="history-subtitle" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Performance Tracking</span>
+                    </div>
+                </div>
+                <div class="flex-grow overflow-y-auto p-8 max-w-4xl mx-auto w-full">
+                    <div id="history-list" class="space-y-4">
+                        <!-- History items -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- LOG MODAL -->
+    <div id="log-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-[100] flex items-center justify-center p-6">
+        <div class="bg-white rounded-[3rem] max-w-md w-full p-12 relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-300 hover:text-black">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+            <h2 id="modal-title" class="text-2xl font-black heading-font italic mb-2 uppercase tracking-tighter">Log Score</h2>
+            <p id="modal-instructions" class="text-slate-500 text-[11px] mb-8 font-medium italic leading-relaxed"></p>
+            
+            <form id="drill-form" onsubmit="handleLogForm(event)" class="space-y-6">
+                <input type="hidden" id="current-par" value="36">
+                <input type="hidden" id="current-drill-name" value="">
+                <input type="hidden" id="current-sheet-name" value="">
+
+                <div id="extra-fields" class="space-y-6"></div>
+
+                <div class="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
+                    <label id="label-score" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Total Strokes</label>
+                    <input type="number" id="input-score" required placeholder="00" class="w-full bg-transparent border-none outline-none font-black text-5xl text-purple-700">
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full btn-primary font-black uppercase tracking-[0.2em] py-6 rounded-2xl shadow-xl text-xs flex items-center justify-center gap-3">
+                    <span id="submit-btn-text">Submit</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed top-8 left-1/2 -translate-x-1/2 bg-white text-black border border-purple-500 px-8 py-4 rounded-full shadow-2xl transition-all duration-500 opacity-0 -translate-y-10 pointer-events-none z-[300] flex items-center gap-4">
+        <i class="fa-solid fa-circle-check text-purple-600"></i>
+        <span class="font-black text-[10px] uppercase tracking-widest" id="toast-msg">Entry Saved</span>
+    </div>
+
+    <script>
+        const BASE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxji4lQkqQLJBFyCWbanjl4Lc0OXaHoVDOobJsXwJ2mjPjR-8GcTXUpr2aWkNgnQ3l1og/exec"; 
+
+        const DRILLS = [
+            { name: "Up and Down", sheetName: "Up and Down", par: 36, icon: "fa-arrows-up-to-line", instructions: "18 Holes. Drop balls in random lies. Aim for 2 strokes or less." },
+            { name: "Birdie Time", sheetName: "Birdie Time", par: 54, icon: "fa-feather", instructions: "18 Holes. Play from 30, 45, and 60 yards." },
+            { name: "2 Putt Drill", sheetName: "2 Putt Drill", par: 36, icon: "fa-bullseye", instructions: "18 Holes. Random holes from 15-30 feet." },
+            { name: "Lag Putting", sheetName: "Lag Putting", par: 36, icon: "fa-flag", instructions: "18 Holes. 30ft, 40ft, 50ft. Hit the 3ft square or score a 3." },
+            { name: "Eagle Mountain 9", sheetName: "Rounds (Eagle Mountain)", par: 36, icon: "fa-mountain-sun", isRound: true, instructions: "Play 9 holes at Eagle Mountain." },
+            { name: "Region Round", sheetName: "Rounds (Region Courses)", par: 36, icon: "fa-map-location-dot", isRound: true, isRegion: true, instructions: "Play 9 holes at any region course." }
+        ];
+
+        let currentUser = null;
+        let masterData = {}; 
+        let authMode = 'login';
+        let rankingMode = 'best'; // 'best', 'avg', 'volume'
+
+        window.onload = () => {
+            renderDrills();
+            refreshData();
+            const saved = localStorage.getItem('bees_golf_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                updateUI();
+            }
+        };
+
+        async function refreshData() {
+            if (!BASE_SCRIPT_URL) return;
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('fa-spin');
+            try {
+                const response = await fetch(BASE_SCRIPT_URL);
+                masterData = await response.json();
+                processRankings();
+                if (currentUser) updateStatsDisplay();
+            } catch (err) {
+                console.error("Sync Error:", err);
+            } finally {
+                icon.classList.remove('fa-spin');
+            }
+        }
+
+        function renderDrills() {
+            const container = document.getElementById('drills-container');
+            container.innerHTML = DRILLS.map(drill => `
+                <div class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden card-hover flex flex-col">
+                    <div class="h-44 bg-slate-900 flex items-center justify-center relative">
+                        <i class="fa-solid ${drill.icon} text-6xl text-purple-900/40"></i>
+                        <div class="absolute bottom-4 right-6 text-white/30 text-[9px] font-black uppercase tracking-widest">Par ${drill.par}</div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <h3 class="text-2xl font-black mb-3 italic tracking-tighter uppercase leading-tight">${drill.name}</h3>
+                        <p class="text-slate-500 text-xs leading-relaxed mb-8 line-clamp-2 italic">${drill.instructions}</p>
+                        <button onclick="attemptLog('${drill.name}')" class="mt-auto w-full py-4 bg-black text-white font-black rounded-2xl hover:bg-purple-700 transition uppercase text-[10px] tracking-widest">
+                            Log Performance
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setRankingMode(mode) {
+            rankingMode = mode;
+            ['best', 'avg', 'volume'].forEach(m => {
+                const el = document.getElementById('mode-'+m);
+                if(m === mode) {
+                    el.className = 'px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-black text-white transition';
+                } else {
+                    el.className = 'px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition';
+                }
+            });
+            processRankings();
+        }
+
+        function processRankings() {
+            const grid = document.getElementById('rankings-grid');
+            if (!masterData || Object.keys(masterData).length === 0) return;
+
+            const regData = masterData['Registration'] || [];
+            const emailMap = {};
+            regData.forEach((row, i) => { if(i>0) emailMap[row[1]] = row[0]; });
+
+            grid.innerHTML = DRILLS.map(drill => {
+                const rows = masterData[drill.sheetName] || [];
+                const sessions = [];
+                const userAggr = {};
+
+                rows.forEach((row, idx) => {
+                    if (idx === 0) return;
+                    const email = row[0];
+                    const score = parseInt(row[1]);
+                    if (!email || isNaN(score)) return;
+
+                    const name = emailMap[email] || email.split('@')[0];
+                    const diff = score - drill.par;
+
+                    sessions.push({ name, score, diff });
+                    if (!userAggr[email]) userAggr[email] = { name, totalDiff: 0, count: 0 };
+                    userAggr[email].totalDiff += diff;
+                    userAggr[email].count++;
+                });
+
+                let top5 = [];
+                if (rankingMode === 'best') {
+                    top5 = sessions.sort((a, b) => a.diff - b.diff).slice(0, 5);
+                } else if (rankingMode === 'avg') {
+                    top5 = Object.values(userAggr)
+                        .map(u => ({ name: u.name, val: (u.totalDiff / u.count).toFixed(1), count: u.count }))
+                        .sort((a, b) => a.val - b.val)
+                        .slice(0, 5);
+                } else {
+                    top5 = Object.values(userAggr)
+                        .sort((a, b) => b.count - a.count)
+                        .slice(0, 5);
+                }
+
+                return `
+                    <div class="ranking-card p-8">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-900/30 flex items-center justify-center text-purple-500">
+                                <i class="fa-solid ${drill.icon}"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-black italic uppercase text-lg tracking-tighter leading-none">${drill.name}</h4>
+                                <span class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
+                                    ${rankingMode === 'best' ? 'Best Sessions' : (rankingMode === 'avg' ? 'Best Average' : 'Most Active')}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            ${top5.length > 0 ? top5.map((entry, i) => `
+                                <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <div class="flex items-center gap-4">
+                                        <span class="text-zinc-600 font-black italic text-xs w-4">${i+1}</span>
+                                        <span class="text-white font-bold uppercase text-[10px] tracking-tight">${entry.name}</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-black italic text-lg ${rankingMode === 'volume' ? 'text-purple-400' : (parseFloat(entry.diff || entry.val) <= 0 ? 'text-green-500' : 'text-red-500')}">
+                                            ${rankingMode === 'volume' ? entry.count : (rankingMode === 'best' ? (entry.diff > 0 ? '+'+entry.diff : (entry.diff === 0 ? 'E' : entry.diff)) : (entry.val > 0 ? '+'+entry.val : (parseFloat(entry.val) === 0 ? 'E' : entry.val)))}
+                                        </div>
+                                        <div class="text-[8px] text-zinc-600 font-bold uppercase">
+                                            ${rankingMode === 'volume' ? 'Sessions' : (rankingMode === 'avg' ? entry.count + ' Sessions' : 'Strokes: ' + entry.score)}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('') : '<div class="py-10 text-center text-zinc-700 font-bold text-[10px] uppercase italic tracking-widest">No Data</div>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStatsDisplay() {
+            if (!currentUser || !masterData) return;
+            let totalCount = 0;
+            let totalDiff = 0;
+            const drillSummaries = [];
+
+            DRILLS.forEach(d => {
+                const rows = masterData[d.sheetName] || [];
+                const userScores = rows.filter(r => r[0] === currentUser.email).map(r => ({
+                    score: parseInt(r[1]),
+                    date: r[r.length - 1]
+                }));
+
+                if (userScores.length > 0) {
+                    const best = Math.min(...userScores.map(s => s.score));
+                    const avg = userScores.reduce((acc, curr) => acc + (curr.score - d.par), 0) / userScores.length;
+                    
+                    totalCount += userScores.length;
+                    totalDiff += userScores.reduce((acc, curr) => acc + (curr.score - d.par), 0);
+
+                    drillSummaries.push({
+                        ...d,
+                        count: userScores.length,
+                        best: best,
+                        bestDiff: best - d.par,
+                        avgDiff: avg.toFixed(1)
+                    });
+                }
+            });
+
+            document.getElementById('stat-sessions').innerText = totalCount;
+            const totalAvg = totalCount > 0 ? (totalDiff / totalCount).toFixed(1) : "E";
+            document.getElementById('stat-avg').innerText = totalAvg > 0 ? `+${totalAvg}` : (totalAvg === "E" ? "E" : totalAvg);
+
+            document.getElementById('drill-breakdown-container').innerHTML = DRILLS.map(d => {
+                const summary = drillSummaries.find(s => s.name === d.name);
+                return `
+                    <div onclick="showHistory('${d.name}')" class="p-8 flex items-center justify-between group cursor-pointer hover:bg-slate-50 transition">
+                        <div class="flex items-center gap-6">
+                            <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-purple-700 group-hover:text-white transition">
+                                <i class="fa-solid ${d.icon}"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-black uppercase text-sm tracking-tighter leading-none mb-1">${d.name}</h4>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${summary ? summary.count + ' Sessions' : 'No Data'}</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-12 text-right">
+                            ${summary ? `
+                                <div>
+                                    <div class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Best</div>
+                                    <div class="font-black italic text-lg ${summary.bestDiff <= 0 ? 'text-green-500' : 'text-red-500'}">
+                                        ${summary.bestDiff > 0 ? '+'+summary.bestDiff : (summary.bestDiff === 0 ? 'E' : summary.bestDiff)}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg</div>
+                                    <div class="font-black italic text-lg ${parseFloat(summary.avgDiff) <= 0 ? 'text-green-500' : 'text-red-500'}">
+                                        ${parseFloat(summary.avgDiff) > 0 ? '+'+summary.avgDiff : (parseFloat(summary.avgDiff) === 0 ? 'E' : summary.avgDiff)}
+                                    </div>
+                                </div>
+                            ` : '<span class="text-slate-300 font-bold uppercase text-[9px] tracking-widest">---</span>'}
+                            <i class="fa-solid fa-chevron-right text-slate-200 group-hover:text-purple-300 self-center"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showHistory(drillName) {
+            if (!currentUser || !masterData) return;
+            const drill = DRILLS.find(d => d.name === drillName);
+            const rows = masterData[drill.sheetName] || [];
+            const userHistory = rows.filter(r => r[0] === currentUser.email).map(r => ({
+                score: parseInt(r[1]),
+                date: r[r.length - 1],
+                course: drill.isRegion ? r[2] : null,
+                side: drill.isRound ? (drill.isRegion ? r[3] : r[2]) : null
+            })).sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            document.getElementById('history-title').innerText = drill.name;
+            document.getElementById('history-subtitle').innerText = userHistory.length + " Total Sessions";
+            
+            document.getElementById('history-list').innerHTML = userHistory.map(log => {
+                const diff = log.score - drill.par;
+                return `
+                    <div class="bg-white border border-slate-200 p-8 rounded-[2rem] flex items-center justify-between">
+                        <div>
+                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">${log.date}</div>
+                            <div class="font-black uppercase text-xs tracking-tight">
+                                ${log.course ? log.course : (log.side ? log.side + ' 9' : 'Performance Session')}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-black italic text-2xl ${diff <= 0 ? 'text-green-500' : 'text-red-500'}">
+                                ${diff > 0 ? '+'+diff : (diff === 0 ? 'E' : diff)}
+                            </div>
+                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Score: ${log.score}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('') || '<div class="text-center py-20 text-slate-400 font-black uppercase text-xs">No History Found</div>';
+
+            document.getElementById('history-overlay').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeHistory() {
+            document.getElementById('history-overlay').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // --- Standard Logic (Auth/Nav/Log) ---
+        function showAuth() { document.getElementById('auth-screen').classList.remove('hidden'); }
+        function hideAuth() { document.getElementById('auth-screen').classList.add('hidden'); }
+        function toggleAuthMode() {
+            authMode = (authMode === 'login' ? 'register' : 'login');
+            const isReg = (authMode === 'register');
+            document.getElementById('auth-title').innerText = isReg ? "REGISTER ATHLETE" : "CLUBHOUSE LOGIN";
+            document.getElementById('name-field').classList.toggle('hidden', !isReg);
+            document.getElementById('auth-submit-btn').innerText = isReg ? "Register & Enter" : "Sign In";
+            document.getElementById('auth-toggle-btn').innerText = isReg ? "Login" : "Register";
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const btn = document.getElementById('auth-submit-btn');
+            const email = document.getElementById('auth-email').value.trim().toLowerCase();
+            setLoading(btn, true);
+
+            let name = "";
+            let userFound = false;
+
+            if (masterData && masterData['Registration']) {
+                const regRows = masterData['Registration'];
+                const match = regRows.find(row => row[1] && row[1].toLowerCase() === email);
+                if (match) { userFound = true; name = match[0]; }
+            }
+
+            if (authMode === 'login' && !userFound) {
+                setLoading(btn, false);
+                document.getElementById('auth-error').classList.remove('hidden');
+                return;
+            } else if (authMode === 'register') {
+                name = document.getElementById('auth-name').value.trim() || email.split('@')[0];
+                if (BASE_SCRIPT_URL) {
+                    await fetch(BASE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', data: { name, email } }) });
+                }
+            }
+
+            currentUser = { name, email };
+            localStorage.setItem('bees_golf_user', JSON.stringify(currentUser));
+            setLoading(btn, false);
+            hideAuth();
+            updateUI();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('bees_golf_user');
+            updateUI();
+        }
+
+        function updateUI() {
+            const authContainer = document.getElementById('nav-auth-container');
+            const profileCard = document.getElementById('profile-user-card');
+            const profileStats = document.getElementById('profile-stats-container');
+
+            if (currentUser) {
+                authContainer.innerHTML = `<button onclick="refreshData()" class="text-white/40 hover:text-white transition p-2"><i id="refresh-icon" class="fa-solid fa-arrows-rotate text-sm"></i></button><button onclick="handleLogout()" class="border-2 border-purple-800 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-800 transition">Logout</button>`;
+                profileCard.innerHTML = `<div class="w-24 h-24 bg-white shadow-xl rounded-[2rem] flex items-center justify-center mb-6 p-4 border border-slate-100"><img src="https://cmsv2-assets.apptegy.net/uploads/7672/logo/9154/bee_new.png" class="w-full h-full object-contain"></div><h3 class="text-2xl font-black italic tracking-tighter uppercase mb-1">${currentUser.name}</h3><p class="text-slate-400 text-[10px] font-bold mb-10 uppercase">${currentUser.email}</p><button onclick="handleLogout()" class="w-full py-4 rounded-2xl border border-slate-200 text-slate-400 font-black uppercase text-[10px] tracking-widest hover:text-red-500 transition">Logout</button>`;
+                profileStats.classList.remove('opacity-30', 'pointer-events-none');
+                updateStatsDisplay();
+            } else {
+                authContainer.innerHTML = `<button onclick="showAuth()" class="bg-purple-700 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 transition">Login</button>`;
+                profileCard.innerHTML = `<div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6"><i class="fa-solid fa-user-lock text-4xl text-slate-200"></i></div><h3 class="text-xl font-black italic tracking-tighter uppercase mb-2">Stats Locked</h3><p class="text-slate-400 text-[10px] font-bold mb-8 italic uppercase">Login to view progress</p><button onclick="showAuth()" class="w-full py-5 rounded-2xl bg-black text-white font-black uppercase text-[10px] tracking-widest">Login</button>`;
+                profileStats.classList.add('opacity-30', 'pointer-events-none');
+            }
+        }
+
+        function attemptLog(drillName) {
+            if (!currentUser) { showAuth(); return; }
+            const drill = DRILLS.find(d => d.name === drillName);
+            if (!drill) return;
+            document.getElementById('modal-title').innerText = drill.name;
+            document.getElementById('modal-instructions').innerText = drill.instructions;
+            document.getElementById('current-par').value = drill.par;
+            document.getElementById('current-drill-name').value = drill.name;
+            document.getElementById('current-sheet-name').value = drill.sheetName;
+            document.getElementById('input-score').value = "";
+            const extras = document.getElementById('extra-fields');
+            extras.innerHTML = "";
+            if (drill.isRegion) {
+                extras.innerHTML += `<div><label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Select Course</label><select id="course-select" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none font-bold uppercase text-xs appearance-none"><option>Eagle Mountain</option><option>The Oaks</option><option>East Bay</option><option>Gladstan</option><option>Hobble Creek</option><option>Spanish Oaks</option></select></div>`;
+            }
+            if (drill.isRound) {
+                extras.innerHTML += `<div><label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Current Side</label><div class="flex gap-3"><label class="flex-1"><input type="radio" name="side" value="Front" checked class="hidden peer"><div class="w-full text-center py-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase peer-checked:bg-black peer-checked:text-white cursor-pointer transition">Front 9</div></label><label class="flex-1"><input type="radio" name="side" value="Back" class="hidden peer"><div class="w-full text-center py-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase peer-checked:bg-black peer-checked:text-white cursor-pointer transition">Back 9</div></label></div></div>`;
+            }
+            document.getElementById('log-modal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('log-modal').classList.add('hidden'); }
+
+        async function handleLogForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const score = parseInt(document.getElementById('input-score').value);
+            const payload = { action: 'logScore', sheetName: document.getElementById('current-sheet-name').value, data: { email: currentUser.email, score: score, side: document.querySelector('input[name="side"]:checked')?.value || null, course: document.getElementById('course-select')?.value || null } };
+            setLoading(btn, true);
+            if (BASE_SCRIPT_URL) {
+                await fetch(BASE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            }
+            setLoading(btn, false);
+            closeModal();
+            refreshData(); 
+            showToast("Performance Logged");
+        }
+
+        function setLoading(btn, isLoading) {
+            const text = btn.querySelector('span') || btn;
+            if (isLoading) { btn.disabled = true; btn.dataset.oldText = text.innerHTML; text.innerHTML = '<div class="loading-spinner"></div>'; }
+            else { btn.disabled = false; text.innerHTML = btn.dataset.oldText; }
+        }
+
+        function showSection(id) {
+            ['drills', 'leaderboard', 'profile'].forEach(s => {
+                document.getElementById('section-'+s).classList.add('hidden');
+                document.getElementById('tab-'+s).classList.remove('active-tab');
+                document.getElementById('tab-'+s).classList.add('text-slate-400');
+            });
+            document.getElementById('section-'+id).classList.remove('hidden');
+            document.getElementById('tab-'+id).classList.add('active-tab');
+            document.getElementById('tab-'+id).classList.remove('text-slate-400');
+            if(id === 'leaderboard') processRankings();
+            if(id === 'profile') updateStatsDisplay();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('opacity-0', '-translate-y-10');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => { toast.classList.add('opacity-0', '-translate-y-10'); toast.classList.remove('opacity-100', 'translate-y-0'); }, 3000);
+        }
+    </script>
+</body>
+</html>
