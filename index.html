@@ -91,17 +91,11 @@
             transition: all 0.3s ease;
         }
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
         @media (max-width: 480px) {
             .header-text { font-size: 10.5vw !important; }
             .header-logo { height: 12vw !important; }
         }
 
-        /* 2x2 Grid for Mobile Tabs */
         .mobile-tab-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -193,7 +187,7 @@
         </header>
 
         <main class="max-w-7xl mx-auto px-6 py-6 md:py-10 w-full flex-grow">
-            <!-- TABS: 2x2 Grid on Mobile, Flex Row on Desktop -->
+            <!-- TABS -->
             <div class="mobile-tab-grid mb-10 border border-slate-200 md:border-none rounded-3xl overflow-hidden md:rounded-none">
                 <button onclick="showSection('drills')" id="tab-drills" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest active-tab border-r md:border-r-0 border-b border-slate-200 md:border-b-0 whitespace-nowrap flex items-center justify-center gap-2">
                     <i class="fa-solid fa-flag-checkered text-[12px] md:hidden"></i> Drills
@@ -212,44 +206,47 @@
             <!-- DRILLS SECTION -->
             <section id="section-drills" class="space-y-10">
                 <h2 class="text-3xl font-black heading-font tracking-tighter italic uppercase text-slate-900">Training Exercises</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="drills-container">
-                    <!-- Loading Placeholder -->
-                    <div class="col-span-full py-20 text-center space-y-4">
-                        <div class="inline-block loading-spinner border-purple-600 !w-8 !h-8 mb-4"></div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse italic">Loading drills...</p>
-                    </div>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="drills-container"></div>
             </section>
 
             <!-- LET'S PLAY SECTION -->
             <section id="section-play" class="hidden space-y-10">
                 <h2 class="text-3xl font-black heading-font tracking-tighter italic uppercase text-slate-900">Course Rounds</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="play-container">
-                    <div class="col-span-full py-20 text-center space-y-4">
-                        <div class="inline-block loading-spinner border-purple-600 !w-8 !h-8 mb-4"></div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse italic">Loading courses...</p>
-                    </div>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="play-container"></div>
             </section>
 
             <!-- RANKINGS SECTION -->
-            <section id="section-leaderboard" class="hidden space-y-12">
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <section id="section-leaderboard" class="hidden space-y-16">
+                <!-- Global Filter -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-200 pb-10">
                     <div>
-                        <h2 class="text-4xl font-black heading-font tracking-tighter italic uppercase">Rankings</h2>
-                        <p class="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">Elite Performance Leaderboards</p>
+                        <h2 class="text-4xl font-black heading-font tracking-tighter italic uppercase">Leaderboards</h2>
+                        <p class="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">Sort by competitive metric</p>
                     </div>
                     <div class="bg-slate-200 p-1 rounded-2xl flex overflow-x-auto no-scrollbar">
-                        <button onclick="setRankingMode('best')" id="mode-best" class="px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-black text-white transition whitespace-nowrap">All-Time Round</button>
-                        <button onclick="setRankingMode('avg')" id="mode-avg" class="px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition whitespace-nowrap">Best Average</button>
-                        <button onclick="setRankingMode('volume')" id="mode-volume" class="px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition whitespace-nowrap">Most Active</button>
+                        <button onclick="setRankingMode('best')" id="mode-best" class="px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-black text-white transition whitespace-nowrap">Personal Best</button>
+                        <button onclick="setRankingMode('avg')" id="mode-avg" class="px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition whitespace-nowrap">Season Average</button>
                     </div>
                 </div>
-                <div id="rankings-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="col-span-full py-20 text-center space-y-4">
-                        <div class="inline-block loading-spinner border-purple-600 !w-8 !h-8 mb-4"></div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse italic">Getting rankings...</p>
+
+                <!-- DRILLS SUB-SECTION -->
+                <div class="space-y-8">
+                    <div class="flex items-center gap-4">
+                        <div class="h-px bg-slate-200 flex-grow"></div>
+                        <h3 class="text-xl font-black italic uppercase tracking-widest text-slate-400">Drills</h3>
+                        <div class="h-px bg-slate-200 flex-grow"></div>
                     </div>
+                    <div id="rankings-drills-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8"></div>
+                </div>
+
+                <!-- PLAY SUB-SECTION -->
+                <div class="space-y-8">
+                    <div class="flex items-center gap-4">
+                        <div class="h-px bg-slate-200 flex-grow"></div>
+                        <h3 class="text-xl font-black italic uppercase tracking-widest text-slate-400">Let's Play</h3>
+                        <div class="h-px bg-slate-200 flex-grow"></div>
+                    </div>
+                    <div id="rankings-play-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8"></div>
                 </div>
             </section>
 
@@ -258,14 +255,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     <div id="profile-user-card" class="bg-white p-12 rounded-[3rem] border border-slate-200 text-center flex flex-col items-center"></div>
                     <div id="profile-stats-container" class="lg:col-span-3 space-y-10 opacity-30 pointer-events-none">
-                        <!-- Initial Placeholder Content for My Stats -->
-                        <div id="profile-loading-overlay" class="py-20 text-center space-y-4">
-                            <div class="inline-block loading-spinner border-purple-600 !w-8 !h-8 mb-4"></div>
-                            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse italic">Building profile...</p>
-                        </div>
-
-                        <div id="profile-actual-content" class="hidden space-y-10">
-                            <!-- Summary Row -->
+                        <div id="profile-actual-content" class="space-y-10">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="bg-black text-white p-10 rounded-[2.5rem] flex flex-col justify-between h-48">
                                     <span class="text-purple-500 text-[10px] font-black uppercase tracking-widest">Lifetime Sessions</span>
@@ -276,17 +266,7 @@
                                     <h4 class="text-6xl font-black heading-font italic text-slate-900" id="stat-avg">E</h4>
                                 </div>
                             </div>
-
-                            <!-- Personal Drill Leaderboards -->
-                            <div>
-                                <div class="flex justify-between items-end mb-8 px-2">
-                                    <div>
-                                        <h3 class="text-2xl font-black heading-font italic uppercase tracking-tighter">My Drill Logs</h3>
-                                        <p class="text-slate-400 font-bold uppercase text-[9px] tracking-widest mt-1">Personal Best & Historical Performance</p>
-                                    </div>
-                                </div>
-                                <div id="personal-drills-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-                            </div>
+                            <div id="personal-drills-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                         </div>
                     </div>
                 </div>
@@ -299,13 +279,11 @@
         <div class="bg-white rounded-[3rem] max-w-md w-full p-12 relative shadow-2xl overflow-y-auto max-h-[90vh]">
             <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-300 hover:text-black"><i class="fa-solid fa-xmark text-2xl"></i></button>
             <h2 id="modal-title" class="text-2xl font-black heading-font italic mb-6 uppercase tracking-tighter leading-tight">Submit Score</h2>
-            
             <form id="drill-form" onsubmit="handleLogForm(event)" class="space-y-6">
                 <input type="hidden" id="current-par" value="36">
                 <input type="hidden" id="current-drill-name" value="">
                 <input type="hidden" id="current-sheet-name" value="">
                 <div id="extra-fields" class="space-y-6"></div>
-                
                 <div class="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 relative">
                     <div class="flex justify-between items-center mb-3">
                         <label id="label-score" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Total Strokes</label>
@@ -330,19 +308,21 @@
         const BASE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxji4lQkqQLJBFyCWbanjl4Lc0OXaHoVDOobJsXwJ2mjPjR-8GcTXUpr2aWkNgnQ3l1og/exec"; 
 
         const DRILLS = [
-            { name: "Up and Down", sheetName: "Up and Down", par: 36, icon: "fa-arrows-up-to-line" },
-            { name: "Birdie Time", sheetName: "Birdie Time", par: 54, icon: "fa-feather" },
-            { name: "2 Putt Drill", sheetName: "2 Putt Drill", par: 36, icon: "fa-bullseye" },
-            { name: "Lag Putting", sheetName: "Lag Putting", par: 36, icon: "fa-flag" },
-            { name: "Eagle Mountain", sheetName: "Rounds (Eagle Mountain)", par: 36, icon: "fa-mountain-sun", isRound: true, isPlay: true },
-            { name: "Region Courses", sheetName: "Rounds (Region Courses)", par: 36, icon: "fa-map-location-dot", isRound: true, isRegion: true, isPlay: true }
+            { id: 'ud', name: "Up and Down", sheetName: "Up and Down", par: 36, icon: "fa-arrows-up-to-line" },
+            { id: 'bt', name: "Birdie Time", sheetName: "Birdie Time", par: 54, icon: "fa-feather" },
+            { id: 'p2', name: "2 Putt Drill", sheetName: "2 Putt Drill", par: 36, icon: "fa-bullseye" },
+            { id: 'lp', name: "Lag Putting", sheetName: "Lag Putting", par: 36, icon: "fa-flag" },
+            { id: 'em', name: "Eagle Mountain", sheetName: "Rounds (Eagle Mountain)", par: 36, icon: "fa-mountain-sun", isRound: true, isPlay: true },
+            { id: 'rc', name: "Region Courses", sheetName: "Rounds (Region Courses)", par: 36, icon: "fa-map-location-dot", isRound: true, isRegion: true, isPlay: true }
         ];
+
+        const REGION_COURSES = ["Remuda", "The Barn", "Crane Field", "Riverside", "The Bluff", "Wolf Creek", "Sun Hills"];
 
         let currentUser = null;
         let masterData = {}; 
         let authMode = 'login';
         let rankingMode = 'best'; 
-        let isSyncing = false;
+        let sideToggles = {}; // Stores selected side (Front/Back) for each play card (e.g., 'em' or 'rc_Remuda')
 
         window.onload = () => {
             const saved = localStorage.getItem('bees_golf_user');
@@ -354,29 +334,18 @@
         };
 
         async function refreshData() {
-            if (!BASE_SCRIPT_URL || isSyncing) return;
-            isSyncing = true;
+            if (!BASE_SCRIPT_URL) return;
             try {
                 const response = await fetch(BASE_SCRIPT_URL);
                 masterData = await response.json();
                 renderContent();
                 processRankings();
-                if (currentUser) {
-                    document.getElementById('profile-loading-overlay').classList.add('hidden');
-                    document.getElementById('profile-actual-content').classList.remove('hidden');
-                    updateStatsDisplay();
-                }
-            } catch (err) { 
-                console.error("Sync Error:", err); 
-            } finally {
-                isSyncing = false;
-            }
+                if (currentUser) updateStatsDisplay();
+            } catch (err) { console.error("Sync Error:", err); }
         }
 
         function createCardHTML(drill) {
-            const instructions = (masterData[drill.sheetName] && masterData[drill.sheetName][0] && masterData[drill.sheetName][0][0]) 
-                                || "Loading instructions from playbook...";
-
+            const instructions = (masterData[drill.sheetName] && masterData[drill.sheetName][0] && masterData[drill.sheetName][0][0]) || "Loading instructions...";
             return `
                 <div class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden card-hover flex flex-col">
                     <div class="card-header-gradient h-36 px-8 flex items-center justify-center text-center relative overflow-hidden">
@@ -385,93 +354,137 @@
                         <div class="absolute bottom-4 right-6 text-white/30 text-[8px] font-black uppercase tracking-widest z-20 ${drill.isPlay ? 'hidden' : ''}">PAR ${drill.par}</div>
                     </div>
                     <div class="p-8 flex-grow flex flex-col">
-                        <div class="mb-8 flex-grow">
-                             <p class="text-slate-600 text-xs leading-relaxed italic font-medium">${instructions}</p>
-                        </div>
-                        <button onclick="attemptLog('${drill.name}')" class="w-full py-4 bg-black text-white font-black rounded-2xl hover:bg-purple-700 transition uppercase text-[10px] tracking-widest">
-                            Submit Score
-                        </button>
+                        <div class="mb-8 flex-grow"><p class="text-slate-600 text-xs leading-relaxed italic font-medium">${instructions}</p></div>
+                        <button onclick="attemptLog('${drill.name}')" class="w-full py-4 bg-black text-white font-black rounded-2xl hover:bg-purple-700 transition uppercase text-[10px] tracking-widest">Submit Score</button>
                     </div>
                 </div>
             `;
         }
 
         function renderContent() {
-            const drillContainer = document.getElementById('drills-container');
-            const playContainer = document.getElementById('play-container');
-            
-            drillContainer.innerHTML = DRILLS.filter(d => !d.isPlay).map(createCardHTML).join('');
-            playContainer.innerHTML = DRILLS.filter(d => d.isPlay).map(createCardHTML).join('');
+            document.getElementById('drills-container').innerHTML = DRILLS.filter(d => !d.isPlay).map(createCardHTML).join('');
+            document.getElementById('play-container').innerHTML = DRILLS.filter(d => d.isPlay).map(createCardHTML).join('');
         }
 
         function setRankingMode(mode) {
             rankingMode = mode;
-            ['best', 'avg', 'volume'].forEach(m => {
+            ['best', 'avg'].forEach(m => {
                 const el = document.getElementById('mode-'+m);
-                if(m === mode) el.className = 'px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-black text-white transition whitespace-nowrap';
-                else el.className = 'px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition whitespace-nowrap';
+                el.className = (m === mode) ? 'px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-black text-white transition whitespace-nowrap' : 'px-4 md:px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-black transition whitespace-nowrap';
             });
             processRankings();
         }
 
+        function toggleSideRanking(cardId, side) {
+            sideToggles[cardId] = side;
+            processRankings();
+        }
+
         function processRankings() {
-            const grid = document.getElementById('rankings-grid');
+            const drillGrid = document.getElementById('rankings-drills-grid');
+            const playGrid = document.getElementById('rankings-play-grid');
             if (!masterData || Object.keys(masterData).length === 0) return;
+
             const regData = masterData['Registration'] || [];
             const emailMap = {};
             regData.forEach((row, i) => { if(i>0) emailMap[row[1]] = row[0]; });
 
-            grid.innerHTML = DRILLS.map(drill => {
-                const rows = masterData[drill.sheetName] || [];
-                const sessions = [];
-                const userAggr = {};
+            // 1. RENDER DRILLS
+            const drillRankings = DRILLS.filter(d => !d.isPlay);
+            drillGrid.innerHTML = drillRankings.map(drill => renderRankingCard(drill, drill.id, emailMap)).join('');
 
-                rows.forEach((row, idx) => {
-                    if (idx === 0) return;
-                    const email = row[0];
-                    const score = parseInt(row[1]);
-                    if (!email || isNaN(score)) return;
-                    const name = emailMap[email] || email.split('@')[0];
-                    const diff = score - drill.par;
-                    sessions.push({ name, score, diff });
-                    if (!userAggr[email]) userAggr[email] = { name, totalDiff: 0, count: 0 };
-                    userAggr[email].totalDiff += diff;
-                    userAggr[email].count++;
-                });
+            // 2. RENDER PLAY (Eagle Mountain + Dynamic Region Courses)
+            let playCardsHTML = "";
+            
+            // Eagle Mountain
+            const emDrill = DRILLS.find(d => d.id === 'em');
+            playCardsHTML += renderRankingCard(emDrill, 'em', emailMap);
 
-                let top5 = [];
-                if (rankingMode === 'best') top5 = sessions.sort((a, b) => a.diff - b.diff).slice(0, 5);
-                else if (rankingMode === 'avg') top5 = Object.values(userAggr).map(u => ({ name: u.name, val: (u.totalDiff / u.count).toFixed(1), count: u.count })).sort((a, b) => a.val - b.val).slice(0, 5);
-                else top5 = Object.values(userAggr).sort((a, b) => b.count - a.count).slice(0, 5);
+            // Region Courses (Split)
+            const rcDrill = DRILLS.find(d => d.id === 'rc');
+            const rcRows = masterData[rcDrill.sheetName] || [];
+            
+            REGION_COURSES.forEach(courseName => {
+                // Check if this specific course has any data in the RC sheet
+                // Column E is course name (Index 4)
+                const hasData = rcRows.some((row, idx) => idx > 0 && row[4] === courseName);
+                if (hasData) {
+                    playCardsHTML += renderRankingCard(rcDrill, `rc_${courseName}`, emailMap, courseName);
+                }
+            });
 
-                return `
-                    <div class="ranking-card p-8">
-                        <div class="flex items-center gap-4 mb-8">
+            playGrid.innerHTML = playCardsHTML;
+        }
+
+        function renderRankingCard(drill, cardId, emailMap, specificCourse = null) {
+            const rows = masterData[drill.sheetName] || [];
+            const activeSide = sideToggles[cardId] || "Front";
+            const sessions = [];
+            const userAggr = {};
+
+            rows.forEach((row, idx) => {
+                if (idx === 0) return;
+                const email = row[0];
+                const score = parseInt(row[1]);
+                if (!email || isNaN(score)) return;
+
+                // Handle Course Filter (for Region)
+                if (specificCourse && row[4] !== specificCourse) return;
+
+                // Handle Side Filter (Column C for EM, Column D for RC)
+                // EM: Index 2, RC: Index 3
+                const sideValue = (drill.id === 'em') ? row[2] : row[3];
+                if (drill.isPlay && sideValue !== activeSide) return;
+
+                const name = emailMap[email] || email.split('@')[0];
+                const diff = score - drill.par;
+                sessions.push({ name, score, diff });
+                if (!userAggr[email]) userAggr[email] = { name, totalDiff: 0, count: 0 };
+                userAggr[email].totalDiff += diff;
+                userAggr[email].count++;
+            });
+
+            let top5 = [];
+            if (rankingMode === 'best') top5 = sessions.sort((a, b) => a.diff - b.diff).slice(0, 5);
+            else top5 = Object.values(userAggr).map(u => ({ name: u.name, val: (u.totalDiff / u.count).toFixed(1), count: u.count })).sort((a, b) => a.val - b.val).slice(0, 5);
+
+            const displayName = specificCourse ? specificCourse : drill.name;
+
+            return `
+                <div class="ranking-card p-8">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-2xl bg-purple-900/30 flex items-center justify-center text-purple-500"><i class="fa-solid ${drill.icon}"></i></div>
                             <div>
-                                <h4 class="text-white font-black italic uppercase text-lg tracking-tighter leading-none">${drill.name}</h4>
-                                <span class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">${rankingMode === 'best' ? 'Best Sessions' : (rankingMode === 'avg' ? 'Best Average' : 'Most Active')}</span>
+                                <h4 class="text-white font-black italic uppercase text-lg tracking-tighter leading-none">${displayName}</h4>
+                                <span class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">${rankingMode === 'best' ? 'Top Rounds' : 'Season Avg'}</span>
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            ${top5.length > 0 ? top5.map((entry, i) => `
-                                <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                                    <div class="flex items-center gap-4">
-                                        <span class="text-zinc-600 font-black italic text-xs w-4">${i+1}</span>
-                                        <span class="text-white font-bold uppercase text-[10px] tracking-tight">${entry.name}</span>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="font-black italic text-lg ${rankingMode === 'volume' ? 'text-purple-400' : (parseFloat(entry.diff || entry.val) <= 0 ? 'text-green-500' : 'text-red-500')}">
-                                            ${rankingMode === 'volume' ? entry.count : (rankingMode === 'best' ? (entry.diff > 0 ? '+'+entry.diff : (entry.diff === 0 ? 'E' : entry.diff)) : (entry.val > 0 ? '+'+entry.val : (parseFloat(entry.val) === 0 ? 'E' : entry.val)))}
-                                        </div>
-                                        <div class="text-[8px] text-zinc-600 font-bold uppercase">${rankingMode === 'volume' ? 'Sessions' : (rankingMode === 'avg' ? entry.count + ' Sessions' : 'Score: ' + entry.score)}</div>
-                                    </div>
-                                </div>
-                            `).join('') : '<div class="py-10 text-center text-zinc-700 font-bold text-[10px] uppercase italic tracking-widest">No Data</div>'}
-                        </div>
+                        ${drill.isPlay ? `
+                            <div class="bg-zinc-900 p-1 rounded-xl flex">
+                                <button onclick="toggleSideRanking('${cardId}', 'Front')" class="px-3 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition ${activeSide === 'Front' ? 'bg-purple-700 text-white' : 'text-zinc-500 hover:text-white'}">Front</button>
+                                <button onclick="toggleSideRanking('${cardId}', 'Back')" class="px-3 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition ${activeSide === 'Back' ? 'bg-purple-700 text-white' : 'text-zinc-500 hover:text-white'}">Back</button>
+                            </div>
+                        ` : ''}
                     </div>
-                `;
-            }).join('');
+                    <div class="space-y-2">
+                        ${top5.length > 0 ? top5.map((entry, i) => `
+                            <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-zinc-600 font-black italic text-xs w-4">${i+1}</span>
+                                    <span class="text-white font-bold uppercase text-[10px] tracking-tight">${entry.name}</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-black italic text-lg ${parseFloat(entry.diff || entry.val) <= 0 ? 'text-green-500' : 'text-red-500'}">
+                                        ${rankingMode === 'best' ? (entry.diff > 0 ? '+'+entry.diff : (entry.diff === 0 ? 'E' : entry.diff)) : (entry.val > 0 ? '+'+entry.val : (parseFloat(entry.val) === 0 ? 'E' : entry.val))}
+                                    </div>
+                                    <div class="text-[8px] text-zinc-600 font-bold uppercase">${rankingMode === 'avg' ? entry.count + ' Rounds' : 'Score: ' + entry.score}</div>
+                                </div>
+                            </div>
+                        `).join('') : '<div class="py-10 text-center text-zinc-700 font-bold text-[10px] uppercase italic tracking-widest">No Leader Data</div>'}
+                    </div>
+                </div>
+            `;
         }
 
         function updateStatsDisplay() {
@@ -488,98 +501,41 @@
                     course: r[4] || null,
                     diff: parseInt(r[1]) - d.par
                 }));
-
                 if (userSessions.length > 0) {
-                    const sorted = [...userSessions].sort((a, b) => a.diff - b.diff);
                     const avg = userSessions.reduce((acc, curr) => acc + curr.diff, 0) / userSessions.length;
                     totalCount += userSessions.length;
                     totalDiff += userSessions.reduce((acc, curr) => acc + curr.diff, 0);
-
-                    drillCards.push({
-                        drill: d,
-                        sessions: userSessions,
-                        top5: sorted.slice(0, 5),
-                        count: userSessions.length,
-                        avgDiff: avg.toFixed(1)
-                    });
-                } else {
-                    drillCards.push({ drill: d, sessions: [], top5: [], count: 0, avgDiff: null });
+                    drillCards.push({ drill: d, sessions: userSessions, top5: [...userSessions].sort((a,b) => a.diff - b.diff).slice(0, 5), count: userSessions.length, avgDiff: avg.toFixed(1) });
                 }
             });
 
             document.getElementById('stat-sessions').innerText = totalCount;
             const totalAvgValue = totalCount > 0 ? (totalDiff / totalCount).toFixed(1) : "E";
-            document.getElementById('stat-avg').innerText = (totalAvgValue > 0) ? `+${totalAvgValue}` : (totalAvgValue === "E" ? "E" : totalAvgValue);
-
+            document.getElementById('stat-avg').innerText = (totalAvgValue > 0) ? `+${totalAvgValue}` : totalAvgValue;
             document.getElementById('personal-drills-grid').innerHTML = drillCards.map((c, idx) => `
-                <div class="stat-card p-8 flex flex-col shadow-sm">
+                <div class="stat-card p-8 shadow-sm">
                     <div class="flex items-center justify-between mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400"><i class="fa-solid ${c.drill.icon}"></i></div>
-                            <div>
-                                <h4 class="font-black italic uppercase text-lg tracking-tighter leading-none mb-1">${c.drill.name}</h4>
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${c.count} Total Sessions</span>
-                            </div>
+                            <div><h4 class="font-black italic uppercase text-lg tracking-tighter leading-none mb-1">${c.drill.name}</h4><span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${c.count} Sessions</span></div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg to Par</div>
-                            <div class="font-black italic text-xl ${parseFloat(c.avgDiff) <= 0 ? 'text-green-500' : 'text-red-500'}">
-                                ${c.avgDiff ? (parseFloat(c.avgDiff) > 0 ? '+'+c.avgDiff : (parseFloat(c.avgDiff) === 0 ? 'E' : c.avgDiff)) : '---'}
-                            </div>
-                        </div>
+                        <div class="text-right"><div class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg</div><div class="font-black italic text-xl ${parseFloat(c.avgDiff) <= 0 ? 'text-green-500' : 'text-red-500'}">${c.avgDiff > 0 ? '+'+c.avgDiff : (parseFloat(c.avgDiff) === 0 ? 'E' : c.avgDiff)}</div></div>
                     </div>
-
-                    <div class="space-y-2 mb-6">
-                        <span class="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-3">Your Top 5 Rounds</span>
-                        ${c.top5.length > 0 ? c.top5.map((s, i) => `
-                            <div class="flex justify-between items-center p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-[10px] font-black italic text-slate-300 w-3">${i+1}</span>
-                                    <span class="text-[9px] font-bold uppercase text-slate-500">${s.course || 'Drill Session'} ${s.side ? '('+s.side+')' : ''}</span>
-                                </div>
-                                <div class="flex items-center gap-4">
-                                    <span class="text-[9px] font-bold text-slate-300">${s.date.toString().split('T')[0]}</span>
-                                    <span class="font-black italic text-sm ${s.diff <= 0 ? 'text-green-600' : 'text-red-500'}">
-                                        ${s.diff > 0 ? '+'+s.diff : (s.diff === 0 ? 'E' : s.diff)}
-                                    </span>
-                                </div>
-                            </div>
-                        `).join('') : '<div class="py-6 text-center text-slate-300 font-bold text-[9px] uppercase italic tracking-widest">No entries yet</div>'}
-                    </div>
-
-                    <button onclick="toggleDrillHistory(${idx})" class="w-full py-4 border border-slate-100 rounded-2xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition">
-                        View All Scores
-                    </button>
-
-                    <div id="history-${idx}" class="hidden mt-6 pt-6 border-t border-slate-50 space-y-2 max-h-48 overflow-y-auto no-scrollbar">
-                         <span class="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-3">Full History</span>
-                         ${c.sessions.sort((a,b) => new Date(b.date) - new Date(a.date)).map(s => `
-                            <div class="flex justify-between items-center px-2 py-1">
-                                <span class="text-[9px] font-medium text-slate-400">${s.date.toString().split('T')[0]} ${s.side ? '('+s.side+')' : ''}</span>
-                                <span class="font-black italic text-xs ${s.diff <= 0 ? 'text-green-600' : 'text-red-500'}">
-                                    ${s.diff > 0 ? '+'+s.diff : (s.diff === 0 ? 'E' : s.diff)}
-                                </span>
-                            </div>
-                         `).join('')}
+                    <div class="space-y-2">
+                        ${c.top5.map((s, i) => `<div class="flex justify-between items-center p-3 rounded-xl bg-slate-50 border border-slate-100"><div class="flex items-center gap-3"><span class="text-[10px] font-black italic text-slate-300 w-3">${i+1}</span><span class="text-[9px] font-bold uppercase text-slate-500">${s.course || 'Drill'} ${s.side ? '('+s.side+')' : ''}</span></div><span class="font-black italic text-sm ${s.diff <= 0 ? 'text-green-600' : 'text-red-500'}">${s.diff > 0 ? '+'+s.diff : (s.diff === 0 ? 'E' : s.diff)}</span></div>`).join('')}
                     </div>
                 </div>
             `).join('');
-        }
-
-        function toggleDrillHistory(idx) {
-            const el = document.getElementById(`history-${idx}`);
-            el.classList.toggle('hidden');
         }
 
         function showAuth() { document.getElementById('auth-screen').classList.remove('hidden'); }
         function hideAuth() { document.getElementById('auth-screen').classList.add('hidden'); }
         function toggleAuthMode() {
             authMode = (authMode === 'login' ? 'register' : 'login');
-            const isReg = (authMode === 'register');
-            document.getElementById('auth-title').innerText = isReg ? "REGISTER ATHLETE" : "CLUBHOUSE LOGIN";
-            document.getElementById('name-field').classList.toggle('hidden', !isReg);
-            document.getElementById('auth-submit-btn').innerText = isReg ? "Register & Enter" : "Sign In";
-            document.getElementById('auth-toggle-btn').innerText = isReg ? "Login" : "Register";
+            document.getElementById('auth-title').innerText = authMode === 'register' ? "REGISTER ATHLETE" : "CLUBHOUSE LOGIN";
+            document.getElementById('name-field').classList.toggle('hidden', authMode !== 'register');
+            document.getElementById('auth-submit-btn').innerText = authMode === 'register' ? "Register & Enter" : "Sign In";
+            document.getElementById('auth-toggle-btn').innerText = authMode === 'register' ? "Login" : "Register";
         }
 
         async function handleAuth(e) {
@@ -588,19 +544,18 @@
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
             setLoading(btn, true);
             let name = "", userFound = false;
-            if (masterData && masterData['Registration']) {
+            if (masterData['Registration']) {
                 const match = masterData['Registration'].find(row => row[1] && row[1].toLowerCase() === email);
                 if (match) { userFound = true; name = match[0]; }
             }
             if (authMode === 'login' && !userFound) { setLoading(btn, false); document.getElementById('auth-error').classList.remove('hidden'); return; }
-            else if (authMode === 'register') {
+            if (authMode === 'register') {
                 name = document.getElementById('auth-name').value.trim() || email.split('@')[0];
-                if (BASE_SCRIPT_URL) await fetch(BASE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', data: { name, email } }) });
+                await fetch(BASE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', data: { name, email } }) });
             }
             currentUser = { name, email };
             localStorage.setItem('bees_golf_user', JSON.stringify(currentUser));
-            setLoading(btn, false); hideAuth(); updateUI();
-            refreshData();
+            setLoading(btn, false); hideAuth(); updateUI(); refreshData();
         }
 
         function handleLogout() { currentUser = null; localStorage.removeItem('bees_golf_user'); updateUI(); }
@@ -616,38 +571,13 @@
                 welcome.classList.remove('hidden');
                 userDisp.innerText = currentUser.name.split(' ')[0];
                 authContainer.innerHTML = `<button onclick="handleLogout()" class="border-2 border-purple-800 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-800 transition">Logout</button>`;
-                profileCard.innerHTML = `
-                    <div class="w-24 h-24 bg-white shadow-xl rounded-[2rem] flex items-center justify-center mb-6 p-4 border border-slate-100">
-                        <img src="https://cmsv2-assets.apptegy.net/uploads/7672/logo/9154/bee_new.png" class="w-full h-full object-contain">
-                    </div>
-                    <h3 class="text-2xl font-black italic tracking-tighter uppercase mb-1">${currentUser.name}</h3>
-                    <p class="text-slate-400 text-[10px] font-bold mb-10 uppercase">${currentUser.email}</p>
-                    <button onclick="handleLogout()" class="w-full py-4 rounded-2xl border border-slate-200 text-slate-400 font-black uppercase text-[10px] tracking-widest hover:text-red-500 transition">Logout</button>
-                `;
+                profileCard.innerHTML = `<div class="w-24 h-24 bg-white shadow-xl rounded-[2rem] flex items-center justify-center mb-6 p-4 border border-slate-100"><img src="https://cmsv2-assets.apptegy.net/uploads/7672/logo/9154/bee_new.png" class="w-full h-full object-contain"></div><h3 class="text-2xl font-black italic tracking-tighter uppercase mb-1">${currentUser.name}</h3><p class="text-slate-400 text-[10px] font-bold mb-10 uppercase">${currentUser.email}</p><button onclick="handleLogout()" class="w-full py-4 rounded-2xl border border-slate-200 text-slate-400 font-black uppercase text-[10px] tracking-widest hover:text-red-500 transition">Logout</button>`;
                 profileStats.classList.remove('opacity-30', 'pointer-events-none');
-                
-                if (!masterData || Object.keys(masterData).length === 0) {
-                    document.getElementById('profile-loading-overlay').classList.remove('hidden');
-                    document.getElementById('profile-actual-content').classList.add('hidden');
-                } else {
-                    document.getElementById('profile-loading-overlay').classList.add('hidden');
-                    document.getElementById('profile-actual-content').classList.remove('hidden');
-                    updateStatsDisplay();
-                }
             } else {
                 welcome.classList.add('hidden');
                 authContainer.innerHTML = `<button onclick="showAuth()" class="bg-purple-700 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 transition">Login</button>`;
-                profileCard.innerHTML = `
-                    <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                        <i class="fa-solid fa-user-lock text-4xl text-slate-200"></i>
-                    </div>
-                    <h3 class="text-xl font-black italic tracking-tighter uppercase mb-2">Stats Locked</h3>
-                    <p class="text-slate-400 text-[10px] font-bold mb-8 italic uppercase">Login to view progress</p>
-                    <button onclick="showAuth()" class="w-full py-5 rounded-2xl bg-black text-white font-black uppercase text-[10px] tracking-widest">Login</button>
-                `;
+                profileCard.innerHTML = `<div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6"><i class="fa-solid fa-user-lock text-4xl text-slate-200"></i></div><h3 class="text-xl font-black italic tracking-tighter uppercase mb-2">Stats Locked</h3><p class="text-slate-400 text-[10px] font-bold mb-8 italic uppercase">Login to view progress</p><button onclick="showAuth()" class="w-full py-5 rounded-2xl bg-black text-white font-black uppercase text-[10px] tracking-widest">Login</button>`;
                 profileStats.classList.add('opacity-30', 'pointer-events-none');
-                document.getElementById('profile-loading-overlay').classList.add('hidden');
-                document.getElementById('profile-actual-content').classList.remove('hidden');
             }
         }
 
@@ -658,28 +588,13 @@
             document.getElementById('current-par').value = drill.par;
             document.getElementById('current-drill-name').value = drill.name;
             document.getElementById('current-sheet-name').value = drill.sheetName;
-            document.getElementById('input-score').value = "";
-            
-            const parDisplay = document.getElementById('modal-par-display');
-            if (drill.isPlay) parDisplay.classList.add('hidden');
-            else { parDisplay.classList.remove('hidden'); parDisplay.innerText = `PAR ${drill.par}`; }
+            document.getElementById('modal-par-display').className = drill.isPlay ? 'hidden' : 'bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest';
+            document.getElementById('modal-par-display').innerText = `PAR ${drill.par}`;
             
             const extras = document.getElementById('extra-fields');
             extras.innerHTML = "";
             if (drill.isRegion) {
-                extras.innerHTML += `
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Select Course</label>
-                        <select id="course-select" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none font-bold uppercase text-xs appearance-none">
-                            <option>Remuda</option>
-                            <option>The Barn</option>
-                            <option>Crane Field</option>
-                            <option>Riverside</option>
-                            <option>The Bluff</option>
-                            <option>Wolf Creek</option>
-                            <option>Sun Hills</option>
-                        </select>
-                    </div>`;
+                extras.innerHTML += `<div><label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Select Course</label><select id="course-select" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none font-bold uppercase text-xs appearance-none">${REGION_COURSES.map(c => `<option>${c}</option>`).join('')}</select></div>`;
             }
             if (drill.isRound) extras.innerHTML += `<div><label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Current Side</label><div class="flex gap-3"><label class="flex-1"><input type="radio" name="side" value="Front" checked class="hidden peer"><div class="w-full text-center py-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase peer-checked:bg-black peer-checked:text-white cursor-pointer transition">Front 9</div></label><label class="flex-1"><input type="radio" name="side" value="Back" class="hidden peer"><div class="w-full text-center py-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase peer-checked:bg-black peer-checked:text-white cursor-pointer transition">Back 9</div></label></div></div>`;
             document.getElementById('log-modal').classList.remove('hidden');
@@ -691,23 +606,14 @@
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             const score = parseInt(document.getElementById('input-score').value);
-            const payload = { 
-                action: 'logScore', 
-                sheetName: document.getElementById('current-sheet-name').value, 
-                data: { 
-                    email: currentUser.email, 
-                    score: score, 
-                    side: document.querySelector('input[name="side"]:checked')?.value || null, 
-                    course: document.getElementById('course-select')?.value || null 
-                } 
-            };
+            const payload = { action: 'logScore', sheetName: document.getElementById('current-sheet-name').value, data: { email: currentUser.email, score: score, side: document.querySelector('input[name="side"]:checked')?.value || null, course: document.getElementById('course-select')?.value || null } };
             setLoading(btn, true);
-            if (BASE_SCRIPT_URL) await fetch(BASE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            await fetch(BASE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             setLoading(btn, false); closeModal(); refreshData(); showToast("Score Saved");
         }
 
         function setLoading(btn, isLoading) {
-            const text = btn.querySelector('span') || btn;
+            const text = btn.querySelector('span');
             if (isLoading) { btn.disabled = true; btn.dataset.oldText = text.innerHTML; text.innerHTML = '<div class="loading-spinner"></div>'; }
             else { btn.disabled = false; text.innerHTML = btn.dataset.oldText; }
         }
@@ -721,13 +627,11 @@
             document.getElementById('section-'+id).classList.remove('hidden');
             document.getElementById('tab-'+id).classList.add('active-tab');
             document.getElementById('tab-'+id).classList.remove('text-slate-400');
-            
             if (masterData && Object.keys(masterData).length > 0) {
                 if(id === 'leaderboard') processRankings();
                 if(id === 'profile') updateStatsDisplay();
             }
-            // Scroll to top of content when switching tabs on mobile
-            if (window.innerWidth < 768) window.scrollTo({ top: 400, behavior: 'smooth' });
+            if (window.innerWidth < 768) window.scrollTo({ top: 350, behavior: 'smooth' });
         }
 
         function showToast(msg) {
