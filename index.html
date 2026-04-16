@@ -322,7 +322,7 @@
         let masterData = {}; 
         let authMode = 'login';
         let rankingMode = 'best'; 
-        let sideToggles = {}; // Stores selected side (Front/Back) for each play card (e.g., 'em' or 'rc_Remuda')
+        let sideToggles = {}; 
 
         window.onload = () => {
             const saved = localStorage.getItem('bees_golf_user');
@@ -337,11 +337,19 @@
             if (!BASE_SCRIPT_URL) return;
             try {
                 const response = await fetch(BASE_SCRIPT_URL);
-                masterData = await response.json();
-                renderContent();
-                processRankings();
-                if (currentUser) updateStatsDisplay();
-            } catch (err) { console.error("Sync Error:", err); }
+                const text = await response.text();
+                // Check if response is actually JSON before parsing
+                if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
+                    masterData = JSON.parse(text);
+                    renderContent();
+                    processRankings();
+                    if (currentUser) updateStatsDisplay();
+                } else {
+                    console.warn("GAS returned HTML instead of JSON. This usually happens during redirects.");
+                }
+            } catch (err) { 
+                console.error("Sync Error:", err); 
+            }
         }
 
         function createCardHTML(drill) {
@@ -389,24 +397,17 @@
             const emailMap = {};
             regData.forEach((row, i) => { if(i>0) emailMap[row[1]] = row[0]; });
 
-            // 1. RENDER DRILLS
             const drillRankings = DRILLS.filter(d => !d.isPlay);
             drillGrid.innerHTML = drillRankings.map(drill => renderRankingCard(drill, drill.id, emailMap)).join('');
 
-            // 2. RENDER PLAY (Eagle Mountain + Dynamic Region Courses)
             let playCardsHTML = "";
-            
-            // Eagle Mountain
             const emDrill = DRILLS.find(d => d.id === 'em');
             playCardsHTML += renderRankingCard(emDrill, 'em', emailMap);
 
-            // Region Courses (Split)
             const rcDrill = DRILLS.find(d => d.id === 'rc');
             const rcRows = masterData[rcDrill.sheetName] || [];
             
             REGION_COURSES.forEach(courseName => {
-                // Check if this specific course has any data in the RC sheet
-                // Column E is course name (Index 4)
                 const hasData = rcRows.some((row, idx) => idx > 0 && row[4] === courseName);
                 if (hasData) {
                     playCardsHTML += renderRankingCard(rcDrill, `rc_${courseName}`, emailMap, courseName);
@@ -427,12 +428,7 @@
                 const email = row[0];
                 const score = parseInt(row[1]);
                 if (!email || isNaN(score)) return;
-
-                // Handle Course Filter (for Region)
                 if (specificCourse && row[4] !== specificCourse) return;
-
-                // Handle Side Filter (Column C for EM, Column D for RC)
-                // EM: Index 2, RC: Index 3
                 const sideValue = (drill.id === 'em') ? row[2] : row[3];
                 if (drill.isPlay && sideValue !== activeSide) return;
 
@@ -534,28 +530,62 @@
             authMode = (authMode === 'login' ? 'register' : 'login');
             document.getElementById('auth-title').innerText = authMode === 'register' ? "REGISTER ATHLETE" : "CLUBHOUSE LOGIN";
             document.getElementById('name-field').classList.toggle('hidden', authMode !== 'register');
-            document.getElementById('auth-submit-btn').innerText = authMode === 'register' ? "Register & Enter" : "Sign In";
+            document.getElementById('auth-submit-btn').querySelector('span').innerText = authMode === 'register' ? "Register & Enter" : "Sign In";
             document.getElementById('auth-toggle-btn').innerText = authMode === 'register' ? "Login" : "Register";
+            document.getElementById('auth-error').classList.add('hidden');
         }
 
         async function handleAuth(e) {
             e.preventDefault();
             const btn = document.getElementById('auth-submit-btn');
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
+            const authError = document.getElementById('auth-error');
+            
             setLoading(btn, true);
+            authError.classList.add('hidden');
+
+            // Wait briefly if masterData isn't ready yet or refresh it
+            if (!masterData || !masterData['Registration']) {
+                await refreshData();
+            }
+
             let name = "", userFound = false;
             if (masterData['Registration']) {
                 const match = masterData['Registration'].find(row => row[1] && row[1].toLowerCase() === email);
-                if (match) { userFound = true; name = match[0]; }
+                if (match) { 
+                    userFound = true; 
+                    name = match[0]; 
+                }
             }
-            if (authMode === 'login' && !userFound) { setLoading(btn, false); document.getElementById('auth-error').classList.remove('hidden'); return; }
+
+            if (authMode === 'login' && !userFound) { 
+                setLoading(btn, false); 
+                authError.classList.remove('hidden'); 
+                return; 
+            }
+
             if (authMode === 'register') {
                 name = document.getElementById('auth-name').value.trim() || email.split('@')[0];
-                await fetch(BASE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', data: { name, email } }) });
+                try {
+                    // Google Apps Script doesn't handle CORS POST easily, so we use no-cors or form submission
+                    // For "no-cors", we can't read the response, which is fine for submission
+                    await fetch(BASE_SCRIPT_URL, { 
+                        method: 'POST', 
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: JSON.stringify({ action: 'register', data: { name, email } }) 
+                    });
+                } catch (err) {
+                    console.error("Registration Error", err);
+                }
             }
+
             currentUser = { name, email };
             localStorage.setItem('bees_golf_user', JSON.stringify(currentUser));
-            setLoading(btn, false); hideAuth(); updateUI(); refreshData();
+            setLoading(btn, false); 
+            hideAuth(); 
+            updateUI(); 
+            setTimeout(refreshData, 1000); // Small delay to let GAS process
         }
 
         function handleLogout() { currentUser = null; localStorage.removeItem('bees_golf_user'); updateUI(); }
@@ -606,10 +636,31 @@
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             const score = parseInt(document.getElementById('input-score').value);
-            const payload = { action: 'logScore', sheetName: document.getElementById('current-sheet-name').value, data: { email: currentUser.email, score: score, side: document.querySelector('input[name="side"]:checked')?.value || null, course: document.getElementById('course-select')?.value || null } };
+            const payload = { 
+                action: 'logScore', 
+                sheetName: document.getElementById('current-sheet-name').value, 
+                data: { 
+                    email: currentUser.email, 
+                    score: score, 
+                    side: document.querySelector('input[name="side"]:checked')?.value || null, 
+                    course: document.getElementById('course-select')?.value || null 
+                } 
+            };
             setLoading(btn, true);
-            await fetch(BASE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            setLoading(btn, false); closeModal(); refreshData(); showToast("Score Saved");
+            try {
+                await fetch(BASE_SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(payload) 
+                });
+            } catch (err) {
+                console.error("Logging Error", err);
+            }
+            setLoading(btn, false); 
+            closeModal(); 
+            setTimeout(refreshData, 1000); 
+            showToast("Score Saved");
         }
 
         function setLoading(btn, isLoading) {
