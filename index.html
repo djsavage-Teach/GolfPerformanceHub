@@ -195,11 +195,14 @@
                 <button onclick="showSection('play')" id="tab-play" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 border-b border-slate-200 md:border-b-0 whitespace-nowrap flex items-center justify-center gap-2">
                     <i class="fa-solid fa-golf-ball-tee text-[12px] md:hidden"></i> Let's Play
                 </button>
-                <button onclick="showSection('leaderboard')" id="tab-leaderboard" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 border-r md:border-r-0 whitespace-nowrap flex items-center justify-center gap-2">
+                <button onclick="showSection('leaderboard')" id="tab-leaderboard" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 border-r md:border-r-0 whitespace-nowrap flex items-center justify-center gap-2 border-b md:border-b-0">
                     <i class="fa-solid fa-trophy text-[12px] md:hidden"></i> Rankings
                 </button>
-                <button onclick="showSection('profile')" id="tab-profile" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 whitespace-nowrap flex items-center justify-center gap-2">
+                <button onclick="showSection('profile')" id="tab-profile" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 whitespace-nowrap flex items-center justify-center gap-2 border-b md:border-b-0">
                     <i class="fa-solid fa-user-gear text-[12px] md:hidden"></i> My Stats
+                </button>
+                <button onclick="showSection('mental')" id="tab-mental" class="px-4 md:px-8 py-5 font-black text-[10px] uppercase tracking-widest text-slate-400 col-span-2 md:col-span-1 whitespace-nowrap flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-brain text-[12px] md:hidden"></i> Mental Course
                 </button>
             </div>
 
@@ -213,6 +216,26 @@
             <section id="section-play" class="hidden space-y-10">
                 <h2 class="text-3xl font-black heading-font tracking-tighter italic uppercase text-slate-900">Course Rounds</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="play-container"></div>
+            </section>
+
+            <!-- MENTAL TOUGHNESS SECTION -->
+            <section id="section-mental" class="hidden space-y-10">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-200 pb-6">
+                    <div>
+                        <h2 class="text-3xl font-black heading-font tracking-tighter italic uppercase text-slate-900">Mental Toughness</h2>
+                        <p class="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">10-Unit Sequential Mindset Program</p>
+                    </div>
+                    <div class="flex items-center gap-4 bg-slate-100 px-6 py-3 rounded-2xl border border-slate-200">
+                        <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Progress:</span>
+                        <div class="h-2 w-32 bg-slate-200 rounded-full overflow-hidden">
+                            <div id="mental-progress-bar" class="h-full bg-purple-700 transition-all duration-500" style="width: 0%;"></div>
+                        </div>
+                        <span id="mental-progress-text" class="text-[9px] font-black text-purple-700 uppercase tracking-widest">0/10 Complete</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="mental-course-container">
+                    <!-- Loaded dynamically via JS -->
+                </div>
             </section>
 
             <!-- RANKINGS SECTION -->
@@ -318,6 +341,19 @@
 
         const REGION_COURSES = ["Remuda", "The Barn", "Crane Field", "Riverside", "The Bluff", "Wolf Creek", "Sun Hills"];
 
+        const MENTAL_UNITS = [
+            { id: 1, title: "Unit 1: Course Management", desc: "Thinking Clearly and Playing Smart Golf", link: "https://docs.google.com/presentation/d/1qNdv0dVYMoB3iXLvkz1Z10eJS7zdLVkqJIRK-VLbNDU/edit?usp=drive_link" },
+            { id: 2, title: "Unit 2: Pre-Shot Routines", desc: "Prepare for Every Shot in the Same Methodical Way", link: "https://docs.google.com/presentation/d/1nIWE1ph75LRmVbFiMCMrcEgIyFcKuGYBku54gHioXAk/edit?usp=drive_link" },
+            { id: 3, title: "Unit 3: Concentration", desc: "Focusing on What is Most Important", link: "https://docs.google.com/presentation/d/1RqFueOjf3YDUPAeQibmrASW8EG3ug9HqhRgyvXOVpC8/edit?usp=drive_link" },
+            { id: 4, title: "Unit 4: Developing Mental Toughness", desc: "The Ability to Enjoy and Thrive Under Pressure Situations", link: "https://docs.google.com/presentation/d/1QSlkfSaRD43XfnGN9CF6YEbTNrZpSJY8Y4YE-8EKy_0/edit?usp=drive_link" },
+            { id: 5, title: "Unit 5: Enjoying Your Golf", desc: "Re-Discover Your Enjoyment of the Game", link: "https://docs.google.com/presentation/d/1pcCQww9QivYMBNSUuJKlD3wojH1F6f08GGF1gor82kg/edit?usp=drive_link" },
+            { id: 6, title: "Unit 6: First Tee Nerves", desc: "Become More Comfortable on the First Tee", link: "https://docs.google.com/presentation/d/1WjngPbSJrrEcPbHi3arvEC0FYP8E1ucxHZTpTF1mJT0/edit?usp=drive_link" },
+            { id: 7, title: "Unit 7: Handling Mistakes and Setbacks", desc: "Develop the Right Attitude to Setbacks", link: "https://docs.google.com/presentation/d/1ZH1zONT8SiSyQlAYEDQJ3z1GpNDoQJ-I35UwLqcpNF8/edit?usp=drive_link" },
+            { id: 8, title: "Unit 8: Increasing Your Confidence", desc: "A Genuine Belief in Yourself", link: "https://docs.google.com/presentation/d/1bXaLGTVNzmM6sTXB0MykPT2iUDV-h494tNXm6FZVmSs/edit?usp=drive_link" },
+            { id: 9, title: "Unit 9: Performing Under Pressure", desc: "Concentrate on What You Have to Do", link: "https://docs.google.com/presentation/d/13xKWQrHzVQSNkRQ7FsPDGI0h1py444DvAUERJC_Px6M/edit?usp=drive_link" },
+            { id: 10, title: "Unit 10: Putting Well", desc: "A Combination of Technical and Mental Strengths", link: "https://docs.google.com/presentation/d/1xrxax_wRsgV5rgfhAjO71jPKFK-nSzN7IqDO-3SZ_T0/edit?usp=drive_link" }
+        ];
+
         let currentUser = null;
         let masterData = {}; 
         let authMode = 'login';
@@ -372,6 +408,7 @@
         function renderContent() {
             document.getElementById('drills-container').innerHTML = DRILLS.filter(d => !d.isPlay).map(createCardHTML).join('');
             document.getElementById('play-container').innerHTML = DRILLS.filter(d => d.isPlay).map(createCardHTML).join('');
+            renderMentalCourse();
         }
 
         function setRankingMode(mode) {
@@ -483,6 +520,84 @@
             `;
         }
 
+        function renderMentalCourse() {
+            const container = document.getElementById('mental-course-container');
+            if (!container) return;
+
+            let completedLevel = parseInt(localStorage.getItem('bees_mental_completed') || '0');
+            
+            // Set up progress layout values
+            const progressPercentage = (completedLevel / MENTAL_UNITS.length) * 100;
+            document.getElementById('mental-progress-bar').style.width = `${progressPercentage}%`;
+            document.getElementById('mental-progress-text').innerText = `${completedLevel}/${MENTAL_UNITS.length} Complete`;
+
+            container.innerHTML = MENTAL_UNITS.map((unit, index) => {
+                const isUnlocked = index <= completedLevel;
+                const isFinished = index < completedLevel;
+
+                let cardStateClass = "";
+                let activeBadge = "";
+                let buttonMarkup = "";
+
+                if (isFinished) {
+                    cardStateClass = "bg-white border-green-200 opacity-95";
+                    activeBadge = `<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Finished</span>`;
+                    buttonMarkup = `
+                        <div class="space-y-3">
+                            <a href="${unit.link}" target="_blank" class="block w-full py-4 bg-purple-100 hover:bg-purple-200 text-purple-700 text-center font-black rounded-2xl uppercase text-[10px] tracking-widest transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Lesson
+                            </a>
+                            <button onclick="completeMentalUnit(${unit.id})" class="w-full py-4 bg-slate-100 text-slate-500 hover:bg-slate-200 transition font-black rounded-2xl uppercase text-[10px] tracking-widest">Retake Unit</button>
+                        </div>`;
+                } else if (isUnlocked) {
+                    cardStateClass = "bg-white border-purple-500 ring-2 ring-purple-100 shadow-md";
+                    activeBadge = `<span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest animate-pulse">Active</span>`;
+                    buttonMarkup = `
+                        <div class="space-y-3">
+                            <a href="${unit.link}" target="_blank" class="block w-full py-4 bg-purple-700 text-white hover:bg-purple-800 text-center font-black rounded-2xl uppercase text-[10px] tracking-widest shadow-lg shadow-purple-500/10 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Lesson
+                            </a>
+                            <button onclick="completeMentalUnit(${unit.id})" class="w-full py-4 bg-black text-white hover:bg-zinc-800 transition font-black rounded-2xl uppercase text-[10px] tracking-widest">Complete Unit</button>
+                        </div>`;
+                } else {
+                    cardStateClass = "bg-slate-50 border-slate-200 opacity-60";
+                    activeBadge = `<span class="bg-slate-100 text-slate-400 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-1"><i class="fa-solid fa-lock text-[8px]"></i> Locked</span>`;
+                    buttonMarkup = `<button disabled class="w-full py-4 bg-slate-100 text-slate-300 font-black rounded-2xl uppercase text-[10px] tracking-widest cursor-not-allowed">Locked</button>`;
+                }
+
+                return `
+                    <div class="border-[1.5px] rounded-[2.5rem] overflow-hidden flex flex-col ${cardStateClass} transition-all duration-300">
+                        <div class="card-header-gradient h-28 px-8 flex items-center justify-between relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]"></div>
+                            <div class="relative z-10 text-left">
+                                <span class="text-purple-400 text-[8px] font-black uppercase tracking-[0.2em]">Unit ${unit.id}</span>
+                                <h3 class="text-white text-md font-black italic heading-font tracking-tighter uppercase leading-tight mt-1">${unit.title.split(': ')[1]}</h3>
+                            </div>
+                            <div class="relative z-10">
+                                ${activeBadge}
+                            </div>
+                        </div>
+                        <div class="p-8 flex-grow flex flex-col justify-between">
+                            <div class="mb-6"><p class="text-slate-600 text-xs leading-relaxed italic font-medium">${unit.desc}</p></div>
+                            ${buttonMarkup}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function completeMentalUnit(id) {
+            let completedLevel = parseInt(localStorage.getItem('bees_mental_completed') || '0');
+            if (id === completedLevel + 1) {
+                completedLevel = id;
+                localStorage.setItem('bees_mental_completed', completedLevel);
+                showToast(`Unlocked Unit ${id + 1}!`);
+            } else if (id <= completedLevel) {
+                showToast(`Retook Unit ${id}`);
+            }
+            renderMentalCourse();
+        }
+
         function updateStatsDisplay() {
             if (!currentUser || !masterData) return;
             let totalCount = 0, totalDiff = 0;
@@ -544,7 +659,6 @@
             setLoading(btn, true);
             authError.classList.add('hidden');
 
-            // Wait briefly if masterData isn't ready yet or refresh it
             if (!masterData || !masterData['Registration']) {
                 await refreshData();
             }
@@ -567,8 +681,6 @@
             if (authMode === 'register') {
                 name = document.getElementById('auth-name').value.trim() || email.split('@')[0];
                 try {
-                    // Google Apps Script doesn't handle CORS POST easily, so we use no-cors or form submission
-                    // For "no-cors", we can't read the response, which is fine for submission
                     await fetch(BASE_SCRIPT_URL, { 
                         method: 'POST', 
                         mode: 'no-cors',
@@ -585,10 +697,19 @@
             setLoading(btn, false); 
             hideAuth(); 
             updateUI(); 
-            setTimeout(refreshData, 1000); // Small delay to let GAS process
+            setTimeout(refreshData, 1000); 
         }
 
         function handleLogout() { currentUser = null; localStorage.removeItem('bees_golf_user'); updateUI(); }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const saved = localStorage.getItem('bees_golf_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                updateUI();
+            }
+            refreshData();
+        });
 
         function updateUI() {
             const authContainer = document.getElementById('nav-auth-container');
@@ -618,6 +739,7 @@
             document.getElementById('current-par').value = drill.par;
             document.getElementById('current-drill-name').value = drill.name;
             document.getElementById('current-sheet-name').value = drill.sheetName;
+            document.getElementById('input-score').value = "";
             document.getElementById('modal-par-display').className = drill.isPlay ? 'hidden' : 'bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest';
             document.getElementById('modal-par-display').innerText = `PAR ${drill.par}`;
             
@@ -636,16 +758,7 @@
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             const score = parseInt(document.getElementById('input-score').value);
-            const payload = { 
-                action: 'logScore', 
-                sheetName: document.getElementById('current-sheet-name').value, 
-                data: { 
-                    email: currentUser.email, 
-                    score: score, 
-                    side: document.querySelector('input[name="side"]:checked')?.value || null, 
-                    course: document.getElementById('course-select')?.value || null 
-                } 
-            };
+            const payload = { action: 'logScore', sheetName: document.getElementById('current-sheet-name').value, data: { email: currentUser.email, score: score, side: document.querySelector('input[name="side"]:checked')?.value || null, course: document.getElementById('course-select')?.value || null } };
             setLoading(btn, true);
             try {
                 await fetch(BASE_SCRIPT_URL, { 
@@ -670,7 +783,7 @@
         }
 
         function showSection(id) {
-            ['drills', 'play', 'leaderboard', 'profile'].forEach(s => {
+            ['drills', 'play', 'leaderboard', 'profile', 'mental'].forEach(s => {
                 document.getElementById('section-'+s).classList.add('hidden');
                 document.getElementById('tab-'+s).classList.remove('active-tab');
                 document.getElementById('tab-'+s).classList.add('text-slate-400');
@@ -682,6 +795,7 @@
                 if(id === 'leaderboard') processRankings();
                 if(id === 'profile') updateStatsDisplay();
             }
+            if (id === 'mental') renderMentalCourse();
             if (window.innerWidth < 768) window.scrollTo({ top: 350, behavior: 'smooth' });
         }
 
