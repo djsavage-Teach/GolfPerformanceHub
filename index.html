@@ -328,8 +328,7 @@
     </div>
 
     <script>
-        const BASE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxji4lQkqQLJBFyCWbanjl4Lc0OXaHoVDOobJsXwJ2mjPjR-8GcTXUpr2aWkNgnQ3l1og/exec"; 
-
+        const BASE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGVvNcFnIUx_el7MH_OiOtOqWhBJnqdw1yn7Eyd2vOn11w02t_qCZeXuFoHGgK5wVQLw/exec"; 
         const DRILLS = [
             { id: 'ud', name: "Up and Down", sheetName: "Up and Down", par: 36, icon: "fa-arrows-up-to-line" },
             { id: 'bt', name: "Birdie Time", sheetName: "Birdie Time", par: 54, icon: "fa-feather" },
@@ -377,6 +376,7 @@
                 // Check if response is actually JSON before parsing
                 if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
                     masterData = JSON.parse(text);
+                    syncMentalProgress();
                     renderContent();
                     processRankings();
                     if (currentUser) updateStatsDisplay();
@@ -385,6 +385,26 @@
                 }
             } catch (err) { 
                 console.error("Sync Error:", err); 
+            }
+        }
+
+        function syncMentalProgress() {
+            if (currentUser && masterData['Mental Toughness']) {
+                const rows = masterData['Mental Toughness'];
+                const email = currentUser.email.trim().toLowerCase();
+                const userRow = rows.find(r => r[1] && r[1].toString().trim().toLowerCase() === email);
+                if (userRow) {
+                    let completedLevel = 0;
+                    for (let i = 1; i <= MENTAL_UNITS.length; i++) {
+                        const val = userRow[i + 1]; // Unit 1 starts at Column C (index 2)
+                        if (val && val.toString().trim().toLowerCase() === 'complete') {
+                            completedLevel = i;
+                        } else {
+                            break;
+                        }
+                    }
+                    localStorage.setItem('bees_mental_completed', completedLevel);
+                }
             }
         }
 
@@ -547,7 +567,9 @@
                             <a href="${unit.link}" target="_blank" class="block w-full py-4 bg-purple-100 hover:bg-purple-200 text-purple-700 text-center font-black rounded-2xl uppercase text-[10px] tracking-widest transition flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Lesson
                             </a>
-                            <button onclick="completeMentalUnit(${unit.id})" class="w-full py-4 bg-slate-100 text-slate-500 hover:bg-slate-200 transition font-black rounded-2xl uppercase text-[10px] tracking-widest">Retake Unit</button>
+                            <button onclick="completeMentalUnit(${unit.id}, this)" class="w-full py-4 bg-slate-100 text-slate-500 hover:bg-slate-200 transition font-black rounded-2xl uppercase text-[10px] tracking-widest">
+                                <span>Retake Unit</span>
+                            </button>
                         </div>`;
                 } else if (isUnlocked) {
                     cardStateClass = "bg-white border-purple-500 ring-2 ring-purple-100 shadow-md";
@@ -557,7 +579,9 @@
                             <a href="${unit.link}" target="_blank" class="block w-full py-4 bg-purple-700 text-white hover:bg-purple-800 text-center font-black rounded-2xl uppercase text-[10px] tracking-widest shadow-lg shadow-purple-500/10 transition flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Lesson
                             </a>
-                            <button onclick="completeMentalUnit(${unit.id})" class="w-full py-4 bg-black text-white hover:bg-zinc-800 transition font-black rounded-2xl uppercase text-[10px] tracking-widest">Complete Unit</button>
+                            <button onclick="completeMentalUnit(${unit.id}, this)" class="w-full py-4 bg-black text-white hover:bg-zinc-800 transition font-black rounded-2xl uppercase text-[10px] tracking-widest">
+                                <span>Complete Unit</span>
+                            </button>
                         </div>`;
                 } else {
                     cardStateClass = "bg-slate-50 border-slate-200 opacity-60";
@@ -586,16 +610,48 @@
             }).join('');
         }
 
-        function completeMentalUnit(id) {
-            let completedLevel = parseInt(localStorage.getItem('bees_mental_completed') || '0');
-            if (id === completedLevel + 1) {
-                completedLevel = id;
-                localStorage.setItem('bees_mental_completed', completedLevel);
-                showToast(`Unlocked Unit ${id + 1}!`);
-            } else if (id <= completedLevel) {
-                showToast(`Retook Unit ${id}`);
+        async function completeMentalUnit(id, btn) {
+            if (!currentUser) { showAuth(); return; }
+            
+            if (btn) setLoading(btn, true);
+            else showToast("Saving progress...");
+
+            const payload = { 
+                action: 'completeMentalUnit', 
+                data: { 
+                    email: currentUser.email, 
+                    unitId: id 
+                } 
+            };
+
+            try {
+                await fetch(BASE_SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(payload) 
+                });
+
+                // Optimistically update local progress states
+                let completedLevel = parseInt(localStorage.getItem('bees_mental_completed') || '0');
+                if (id === completedLevel + 1) {
+                    completedLevel = id;
+                    localStorage.setItem('bees_mental_completed', completedLevel);
+                    showToast(`Unlocked Unit ${id + 1}!`);
+                } else if (id <= completedLevel) {
+                    showToast(`Retook Unit ${id}`);
+                }
+
+                renderMentalCourse();
+                
+                // Fetch updated sheet values after a brief delay
+                setTimeout(refreshData, 1200);
+            } catch (err) {
+                console.error("Mental Toughness Progress Error:", err);
+                showToast("Connection issue. Progress cached locally.");
+            } finally {
+                if (btn) setLoading(btn, false);
             }
-            renderMentalCourse();
         }
 
         function updateStatsDisplay() {
@@ -702,15 +758,6 @@
 
         function handleLogout() { currentUser = null; localStorage.removeItem('bees_golf_user'); updateUI(); }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const saved = localStorage.getItem('bees_golf_user');
-            if (saved) {
-                currentUser = JSON.parse(saved);
-                updateUI();
-            }
-            refreshData();
-        });
-
         function updateUI() {
             const authContainer = document.getElementById('nav-auth-container');
             const profileCard = document.getElementById('profile-user-card');
@@ -777,7 +824,7 @@
         }
 
         function setLoading(btn, isLoading) {
-            const text = btn.querySelector('span');
+            const text = btn.querySelector('span') || btn;
             if (isLoading) { btn.disabled = true; btn.dataset.oldText = text.innerHTML; text.innerHTML = '<div class="loading-spinner"></div>'; }
             else { btn.disabled = false; text.innerHTML = btn.dataset.oldText; }
         }
